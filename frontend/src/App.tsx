@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useParams, Link } from 'react-router-dom';
 import './App.css';
 
-const API_BASE = `http://${window.location.hostname}:8000`;
+const API_BASE = import.meta.env.VITE_API_URL;
 
 interface Game { id: number; title: string; type: string; desc: string; }
 
