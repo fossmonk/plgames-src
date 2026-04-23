@@ -9,7 +9,7 @@ app = FastAPI()
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://plgames-src.vercel.app",
+    "https://pinklungigames.com",
 ]
 
 app.add_middleware(
