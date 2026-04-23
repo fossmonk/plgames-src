@@ -3,3 +3,6 @@ uvicorn
 gunicorn
 python-socketio
 redis
+sqlalchemy
+psycopg2-binary
+alembic

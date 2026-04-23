@@ -1,50 +1,39 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useParams, Link } from 'react-router-dom';
 import './App.css';
+import { SillyQuizComponent } from './SillyQuiz.tsx'
+import { PuzzleComponent } from './Puzzle.tsx'
+import { LiveQuizComponent } from './LiveQuiz.tsx'
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
 interface Game { id: number; title: string; type: string; desc: string; }
 
-// --- Game Runner Component ---
-function QuizRunner({ games }: { games: Game[] }) {
+// --- Game Runner (The Dynamic Gateway) ---
+function GameRunner() {
   const { gameId } = useParams();
-  const [quiz, setQuiz] = useState<any>(null);
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [score, setScore] = useState(0);
-  const [finished, setFinished] = useState(false);
+  const [game, setGame] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/quiz/${gameId}`)
+    fetch(`${API_BASE}/api/play/${gameId}`)
       .then(res => res.json())
-      .then(data => setQuiz(data));
+      .then(data => setGame(data))
+      .catch(err => console.error("Error loading game:", err));
   }, [gameId]);
 
-  const handleAnswer = (idx: number) => {
-    if (idx === quiz.questions[currentIdx].correct) setScore(score + 1);
-    
-    if (currentIdx + 1 < quiz.questions.length) {
-      setCurrentIdx(currentIdx + 1);
-    } else {
-      setFinished(true);
-    }
-  };
+  if (!game) return <div className="container">Loading Game...</div>;
 
-  if (!quiz) return <div className="container">Loading Quiz...</div>;
-  if (finished) return <div className="container"><h1>Game Over!</h1><p>Your Score: {score} / {quiz.questions.length}</p></div>;
-
-  const q = quiz.questions[currentIdx];
-  return (
-    <div className="container">
-      <h1 className="brand-name">{quiz.title}</h1>
-      <div className="game-card">
-        <h3>{q.text}</h3>
-        {q.options.map((opt: string, i: number) => (
-          <button key={i} onClick={() => handleAnswer(i)}>{opt}</button>
-        ))}
-      </div>
-    </div>
-  );
+  // The Switcher Pattern: Routes to the correct UI based on game type
+  switch (game.type) {
+    case 'silly_quiz':
+      return <SillyQuizComponent data={game.data} title={game.title} />;
+    case 'puzzle':
+      return <PuzzleComponent data={game.data} title={game.title} />;
+    case 'live_quiz':
+      return <LiveQuizComponent data={game.data} title={game.title} />;
+    default:
+      return <div className="container"><h2>Unknown game type: {game.type}</h2></div>;
+  }
 }
 
 // --- Category Page ---
@@ -64,7 +53,7 @@ function CategoryPage({ games }: { games: Game[] }) {
           <div key={game.id} className="game-card">
             <h3>{game.title}</h3>
             <p>{game.desc}</p>
-            <button onClick={() => navigate(`/play/${game.id}`)}>Play Now</button>
+            <button onClick={() => navigate(`/play/${game.id}`)}>PLAY NOW</button>
           </div>
         ))}
       </div>
@@ -107,7 +96,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage games={games} />} />
         <Route path="/category/:categoryName" element={<CategoryPage games={games} />} />
-        <Route path="/play/:gameId" element={<QuizRunner games={games} />} />
+        <Route path="/play/:gameId" element={<GameRunner />} />
       </Routes>
     </BrowserRouter>
   );

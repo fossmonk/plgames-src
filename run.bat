@@ -27,6 +27,4 @@ start "React Frontend" cmd /k "cd /d %FRONTEND_DIR% && npm run dev"
 
 echo.
 echo Both services are starting...
-echo API: http://localhost:8000
-echo Frontend: http://localhost:5173
 pause
