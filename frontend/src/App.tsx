@@ -6,7 +6,7 @@ const API_BASE = import.meta.env.VITE_API_URL;
 
 interface Game { id: number; title: string; type: string; desc: string; }
 
-// --- Game Runner Component (The actual game screen) ---
+// --- Game Runner Component ---
 function QuizRunner({ games }: { games: Game[] }) {
   const { gameId } = useParams();
   const [quiz, setQuiz] = useState<any>(null);
@@ -36,20 +36,18 @@ function QuizRunner({ games }: { games: Game[] }) {
   const q = quiz.questions[currentIdx];
   return (
     <div className="container">
-      <h1>{quiz.title}</h1>
+      <h1 className="brand-name">{quiz.title}</h1>
       <div className="game-card">
         <h3>{q.text}</h3>
         {q.options.map((opt: string, i: number) => (
-          <button key={i} onClick={() => handleAnswer(i)} style={{display: 'block', margin: '5px'}}>
-            {opt}
-          </button>
+          <button key={i} onClick={() => handleAnswer(i)}>{opt}</button>
         ))}
       </div>
     </div>
   );
 }
 
-// --- Category Page Component ---
+// --- Category Page ---
 function CategoryPage({ games }: { games: Game[] }) {
   const { categoryName } = useParams();
   const navigate = useNavigate();
@@ -58,17 +56,15 @@ function CategoryPage({ games }: { games: Game[] }) {
   return (
     <div className="container">
       <header>
-        <Link to="/">← Back to Home</Link>
-        <h1>{categoryName}</h1>
+        <Link to="/">← Back</Link>
+        <h1 className="brand-name">{categoryName}</h1>
       </header>
       <div className="game-grid">
         {filtered.map(game => (
           <div key={game.id} className="game-card">
             <h3>{game.title}</h3>
             <p>{game.desc}</p>
-            <button onClick={() => navigate(`/play/${game.id}`)}>
-              Play Now
-            </button>
+            <button onClick={() => navigate(`/play/${game.id}`)}>Play Now</button>
           </div>
         ))}
       </div>
@@ -83,13 +79,13 @@ function HomePage({ games }: { games: Game[] }) {
 
   return (
     <div className="container">
-      <header><h1>PINKLUNGI Games</h1></header>
+      <header><h1 className="brand-name">PINKLUNGI Games</h1></header>
       <section className="hero"><h2>Select a Category</h2></section>
       <div className="game-grid">
         {categories.map((cat) => (
           <div key={cat} className="game-card" onClick={() => navigate(`/category/${cat}`)}>
             <h3>{cat}</h3>
-            <button>Browse Games</button>
+            <button>Browse</button>
           </div>
         ))}
       </div>
@@ -97,10 +93,8 @@ function HomePage({ games }: { games: Game[] }) {
   );
 }
 
-// --- Main App Wrapper ---
 export default function App() {
   const [games, setGames] = useState<Game[]>([]);
-
   useEffect(() => {
     fetch(`${API_BASE}/api/games`)
       .then(res => res.json())

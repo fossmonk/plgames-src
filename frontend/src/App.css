@@ -1,23 +1,35 @@
-body { margin: 0; padding: 0; background-color: #f9f9f9; }
+:root {
+  --color-white: #ffffff;
+  --color-pink: #ff69b4;
+  --color-yellow: #f1c40f;
+  --color-text: #2d3436;
+}
+
+body { margin: 0; padding: 0; background-color: var(--color-white); }
 
 .container { 
   max-width: 900px; 
   margin: 0 auto; 
   padding: 20px; 
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+  font-family: 'Segoe UI', sans-serif;
 }
 
 header { 
   display: flex; 
   justify-content: space-between; 
   align-items: center; 
-  border-bottom: 3px solid #333; 
+  border-bottom: 3px solid var(--color-pink); 
   padding-bottom: 10px;
 }
 
-header h1 { color: #333; margin: 0; }
+/* Brand Name Branding */
+header h1 { 
+  color: var(--color-pink); 
+  text-shadow: 1px 1px 0px var(--color-yellow);
+  margin: 0; 
+}
 
-.hero { text-align: center; padding: 40px 0; }
+.hero { text-align: center; padding: 40px 0; color: var(--color-text); }
 
 .game-grid { 
   display: grid; 
@@ -27,37 +39,31 @@ header h1 { color: #333; margin: 0; }
 }
 
 .game-card { 
-  background: white;
-  border: 1px solid #ddd; 
+  background: var(--color-white);
+  border: 2px solid var(--color-pink); 
   padding: 20px; 
   border-radius: 12px; 
   transition: transform 0.2s, box-shadow 0.2s; 
+  cursor: pointer;
 }
 
 .game-card:hover { 
   transform: translateY(-5px); 
-  box-shadow: 0 6px 15px rgba(0,0,0,0.1); 
+  box-shadow: 0 6px 15px rgba(255, 105, 180, 0.2); 
 }
 
-.badge { 
-  display: inline-block;
-  padding: 5px 12px; 
-  border-radius: 20px; 
-  font-size: 0.75rem; 
-  font-weight: 600; 
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
+/* Fix for mobile buttons/inputs */
 button { 
   margin-top: 15px; 
   cursor: pointer; 
-  padding: 10px 20px; 
-  background-color: #333;
+  padding: 12px 24px; 
+  background-color: var(--color-pink);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: bold;
+  font-size: 16px; /* Prevents iOS auto-zoom */
+  width: 100%;
 }
 
-button:hover { background-color: #555; }
+button:hover { background-color: var(--color-yellow); color: var(--color-text); }
