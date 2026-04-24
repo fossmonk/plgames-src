@@ -100,6 +100,10 @@ html, body, #root {
   box-shadow: 0 6px 15px rgba(255, 105, 180, 0.2);
 }
 
+input {
+  caret-color: transparent; /* Makes the blinking line invisible */
+}
+
 /* Buttons and Inputs */
 button {
   margin-top: 15px;
