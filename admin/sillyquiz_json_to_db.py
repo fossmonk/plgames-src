@@ -33,7 +33,31 @@ def import_json(filepath):
     session.close()
     print(f"Successfully imported {data['title']} into DB!")
 
+def update_game(filepath, game_id):
+    with open(filepath, 'r') as f:
+        data = json.load(f)
+    
+    session = SessionLocal()
+    # Find the existing game
+    game = session.query(Game).filter(Game.id == game_id).first()
+    
+    if game:
+        # Update the content field with the new JSON data
+        game.content = data['content']
+        session.commit()
+        print(f"Successfully updated Game ID: {game_id}")
+    else:
+        print(f"Error: Game with ID {game_id} not found.")
+    
+    session.close()
+
 if __name__ == "__main__":
     # Just run: python db_loader.py your_quiz.json
     import sys
-    import_json(sys.argv[1])
+    update_db = False
+    if (len(sys.argv) > 2):
+        update_db = True
+    if not update_db:
+        import_json(sys.argv[1])
+    else:
+        update_game(sys.argv[1], sys.argv[2])
