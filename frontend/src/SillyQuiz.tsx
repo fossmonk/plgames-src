@@ -1,39 +1,38 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const getGameOverText = (score: number, total: number) => {
+const getGameOverMeme = (score: number, total: number) => {
   const ratio = score / total;
 
   // Perfect Score
   if (ratio === 1) {
-    const perfectMessages = [
-      "🎉 VIKRAMETTA, YOU'RE GREAT!",
-      "🤯 KANAN VALIYA LOOK ILLENNE ULLU, BHAYANKARA BUDHIYA!",
-      "🔥 YEVAN PULIYAAN KETTA!",
-      "🏆 CHANDUVINE THOLPIKKAN AAVILLA MAKKALE!"
+    const perfectMemes = [
+      "vikrammeme.jpg",
+      "vakeelmeme.jpg"
     ];
-    return perfectMessages[Math.floor(Math.random() * perfectMessages.length)];
+    return perfectMemes[Math.floor(Math.random() * perfectMemes.length)];
   }
 
   // Good Score (> 70%)
   if (ratio >= 0.7) {
-    const goodMessages = [
-      "KOLLAAM...NINNE NJAN NIRULSAHAPEDUTHUNNILLA...",
-      "I AM THE ANSWER!",
-      "ALLELUM ELLA KAZHIVUM ORALK KITTILLALLO..",
-      "EDA MONEEYY!!"
+    const goodMemes = [
+      "nirulsahameme.jpg",
+      "answermeme.jpg",
+      "edamonememe.jpg",
+      "chandumeme.jpg",
+      "pulimeme.jpg"
     ];
-    return goodMessages[Math.floor(Math.random() * goodMessages.length)];
+    return goodMemes[Math.floor(Math.random() * goodMemes.length)];
   }
 
   // Needs Improvement
-  const badMessages = [
-    "PATTULLEL KALANJITT PODEY..",
-    "INIYIPPO KAAVILE PATTUMALSARATHINU NOKKAM..",
-    "SENSE UNDAVANAM...SENSIBILITY UNDAVANAM...",
-    "ANGANE PAVANAYI SHAVAMAYI..."
+  const badMemes = [
+    "sensememe.jpg",
+    "pattumalsarammeme.jpg",
+    "trappedmeme.jpg",
+    "pavanayimeme.jpg"
   ];
-  return badMessages[Math.floor(Math.random() * badMessages.length)];
+  return badMemes[Math.floor(Math.random() * badMemes.length)];
 };
 
 export function SillyQuizComponent({ data, title }: { data: any; title: string }) {
@@ -64,13 +63,14 @@ export function SillyQuizComponent({ data, title }: { data: any; title: string }
 
   if (finished) {
     const isPerfect = score === data.questions.length;
-    const headerText = getGameOverText(score, data.questions.length);
+    const meme = getGameOverMeme(score, data.questions.length);
+    const memeSrc = `/memes/${meme}`;
 
     return (
       <div className="container">
         {/* Hand-drawn style wrapper */}
         <div className="game-over-sheet">
-          <h2>{headerText}</h2>
+          <img src={memeSrc} alt="Result Meme" className="game-over-meme" />
           
           {isPerfect && (
             <div className="party-popper-animation">🥳</div>

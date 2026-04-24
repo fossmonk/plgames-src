@@ -223,6 +223,16 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   background: #f0f0f0;
 }
 
+.game-over-meme {
+  max-width: 100%;
+  height: auto;
+  width: auto;
+  max-height: 400px;
+  margin: 15px auto;
+  display: block;
+  object-fit: contain; 
+}
+
 .game-over-sheet {
   background: #fff;
   border: 4px solid #333;
