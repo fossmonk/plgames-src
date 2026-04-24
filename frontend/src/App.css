@@ -67,3 +67,37 @@ button {
 }
 
 button:hover { background-color: var(--color-yellow); color: var(--color-text); }
+
+/* App.css */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.radio-option:hover {
+  background: #f0f0f0;
+}
+
+.submit-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  width: 100%;
+  font-weight: bold;
+}
+
+.submit-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
