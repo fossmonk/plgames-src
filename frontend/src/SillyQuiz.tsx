@@ -56,7 +56,7 @@ export function SillyQuizComponent({ data, title }: { data: any; title: string }
                 checked={selectedOption === i}
                 onChange={() => setSelectedOption(i)}
               />
-              {opt}
+              {" "+opt}
             </label>
           ))}
         </div>
