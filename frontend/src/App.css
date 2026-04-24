@@ -158,15 +158,30 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
   margin-top: 30px;
   line-height: 1.5;
+  
+  /* Prevent mobile browser text-fading behavior */
+  -webkit-text-size-adjust: 100%;
+  color: #1a1a1a !important; 
 }
 
 .score-text {
-  font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+  /* Added 'Comic Neue' to the stack for better mobile consistency */
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
   font-size: 3rem;
-  font-weight: bold;
-  color: var(--color-pink);
+  font-weight: 800 !important; /* Heavier weight prevents "fading" */
+  color: var(--color-pink) !important;
   margin: 10px 0;
   transform: rotate(-2deg);
+  
+  /* Adds a subtle stamp effect for higher contrast */
+  text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.2);
+}
+
+/* Ensure headings inside the sheet stay dark */
+.game-over-sheet h1,
+.game-over-sheet h2, 
+.game-over-sheet h3 {
+  color: #1a1a1a !important;
 }
 
 .party-popper-animation {
