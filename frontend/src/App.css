@@ -141,10 +141,42 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s;
+  gap: 10px;
 }
 
 .radio-option:hover {
   background: #f0f0f0;
+}
+
+.game-over-sheet {
+  background: #fff;
+  border: 4px solid #333;
+  /* The "Hand-Drawn" blob effect */
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; 
+  padding: 40px;
+  text-align: center;
+  box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
+  margin-top: 30px;
+}
+
+.score-text {
+  font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--color-pink);
+  margin: 10px 0;
+  transform: rotate(-2deg);
+}
+
+.party-popper-animation {
+  font-size: 4rem;
+  animation: bounce 1s infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px) rotate(10deg); }
 }
 
 /* Footer */

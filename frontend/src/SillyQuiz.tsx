@@ -1,6 +1,41 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const getGameOverText = (score: number, total: number) => {
+  const ratio = score / total;
+
+  // Perfect Score
+  if (ratio === 1) {
+    const perfectMessages = [
+      "🎉 VIKRAMETTA, YOU'RE GREAT!",
+      "🤯 KANAN VALIYA LOOK ILLENNE ULLU, BHAYANKARA BUDHIYA!",
+      "🔥 YEVAN PULIYAAN KETTA!",
+      "🏆 CHANDUVINE THOLPIKKAN AAVILLA MAKKALE!"
+    ];
+    return perfectMessages[Math.floor(Math.random() * perfectMessages.length)];
+  }
+
+  // Good Score (> 70%)
+  if (ratio >= 0.7) {
+    const goodMessages = [
+      "KOLLAAM...NINNE NJAN NIRULSAHAPEDUTHUNNILLA...",
+      "I AM THE ANSWER!",
+      "ALLELUM ELLA KAZHIVUM ORALK KITTILLALLO..",
+      "EDA MONEEYY!!"
+    ];
+    return goodMessages[Math.floor(Math.random() * goodMessages.length)];
+  }
+
+  // Needs Improvement
+  const badMessages = [
+    "PATTULLEL KALANJITT PODEY..",
+    "INIYIPPO KAAVILE PATTUMALSARATHINU NOKKAM..",
+    "SENSE UNDAVANAM...SENSIBILITY UNDAVANAM...",
+    "ANGANE PAVANAYI SHAVAMAYI..."
+  ];
+  return badMessages[Math.floor(Math.random() * badMessages.length)];
+};
+
 export function SillyQuizComponent({ data, title }: { data: any; title: string }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [score, setScore] = useState(0);
@@ -27,15 +62,30 @@ export function SillyQuizComponent({ data, title }: { data: any; title: string }
     }
   };
 
-  if (finished) return (
-    <div className="container">
-      <div className="game-card">
-        <h1>Game Over!</h1>
-        <p>Your Final Score: {score} / {data.questions.length}</p>
-        <button onClick={() => navigate('/')}>PLAY AGAIN</button>
+  if (finished) {
+    const isPerfect = score === data.questions.length;
+    const headerText = getGameOverText(score, data.questions.length);
+
+    return (
+      <div className="container">
+        {/* Hand-drawn style wrapper */}
+        <div className="game-over-sheet">
+          <h1>{headerText}</h1>
+          
+          {isPerfect && (
+            <div className="party-popper-animation">🥳</div>
+          )}
+
+          <h2>Your Final Score:</h2>
+          <div className="score-text">
+            {score} / {data.questions.length}
+          </div>
+          
+          <button onClick={() => navigate('/')}>PLAY AGAIN</button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   const q = data.questions[currentIdx];
 
@@ -56,7 +106,7 @@ export function SillyQuizComponent({ data, title }: { data: any; title: string }
                 checked={selectedOption === i}
                 onChange={() => setSelectedOption(i)}
               />
-              {" "+opt}
+              {opt}
             </label>
           ))}
         </div>
