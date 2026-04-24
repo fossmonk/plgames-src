@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function SillyQuizComponent({ data, title }: { data: any; title: string }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  const navigate = useNavigate();
   
   // New state to track the radio selection
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -30,7 +32,7 @@ export function SillyQuizComponent({ data, title }: { data: any; title: string }
       <div className="game-card">
         <h1>Game Over!</h1>
         <p>Your Final Score: {score} / {data.questions.length}</p>
-        <button onClick={() => window.location.reload()}>Play Again</button>
+        <button onClick={() => navigate('/')}>PLAY AGAIN</button>
       </div>
     </div>
   );
