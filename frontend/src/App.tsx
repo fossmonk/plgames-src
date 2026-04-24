@@ -4,6 +4,7 @@ import './App.css';
 import { SillyQuizComponent } from './SillyQuiz.tsx'
 import { PuzzleComponent } from './Puzzle.tsx'
 import { LiveQuizComponent } from './LiveQuiz.tsx'
+import Layout from './components/Layout.tsx';
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
@@ -68,8 +69,6 @@ function HomePage({ games }: { games: Game[] }) {
 
   return (
     <div className="container">
-      <header><h1 className="brand-name">PINKLUNGI Games</h1></header>
-      <section className="hero"><h2>Select a Category</h2></section>
       <div className="game-grid">
         {categories.map((cat) => (
           <div key={cat} className="game-card" onClick={() => navigate(`/category/${cat}`)}>
@@ -93,11 +92,13 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage games={games} />} />
-        <Route path="/category/:categoryName" element={<CategoryPage games={games} />} />
-        <Route path="/play/:gameId" element={<GameRunner />} />
-      </Routes>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<HomePage games={games} />} />
+          <Route path="/category/:categoryName" element={<CategoryPage games={games} />} />
+          <Route path="/play/:gameId" element={<GameRunner />} />
+        </Routes>
+      </Layout>
     </BrowserRouter>
   );
 }
