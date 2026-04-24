@@ -34,6 +34,7 @@ cd frontend
 Write-Host "Installing dependencies (npm)..." -ForegroundColor Yellow
 npm install
 npm install react-router-dom
+npm install fuse.js
 
 cd ..
 
