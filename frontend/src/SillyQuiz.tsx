@@ -70,13 +70,13 @@ export function SillyQuizComponent({ data, title }: { data: any; title: string }
       <div className="container">
         {/* Hand-drawn style wrapper */}
         <div className="game-over-sheet">
-          <h1>{headerText}</h1>
+          <h2>{headerText}</h2>
           
           {isPerfect && (
             <div className="party-popper-animation">🥳</div>
           )}
 
-          <h2>Your Final Score:</h2>
+          <h3>Your Final Score:</h3>
           <div className="score-text">
             {score} / {data.questions.length}
           </div>
