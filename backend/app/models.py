@@ -13,11 +13,13 @@ class Game(Base):
     __tablename__ = 'games'
     id = Column(Integer, primary_key=True)
     title = Column(String)
-    # Silly Quizzes, Puzzles, Live Quizzes
+    # Quick Quizzes, Puzzles, Live Quizzes
     category = Column(String)
     description = Column(String)
-    # silly_quiz, puzzle or live_quiz
+    # quick_quiz, puzzle or live_quiz
     game_type = Column(String)
+    # game subtype, mostly for puzzles
+    game_subtype = Column(String)
     # game data
     content = Column(JSON)
 

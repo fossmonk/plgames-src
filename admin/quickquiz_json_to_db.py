@@ -13,6 +13,7 @@ class Game(Base):
     title = Column(String)
     category = Column(String)
     game_type = Column(String)
+    game_subtype = Column(String, "NA")
     description = Column(String)
     content = Column(JSON)
 
@@ -23,8 +24,8 @@ def import_json(filepath):
     session = SessionLocal()
     new_game = Game(
         title=data['title'],
-        category='Silly Quizzes',
-        game_type='silly_quiz',
+        category='Quick Quizzes',
+        game_type='quick_quiz',
         description=data['description'],
         content=data['content']
     )

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const getGameOverMeme = (score: number, total: number) => {
@@ -35,7 +35,7 @@ const getGameOverMeme = (score: number, total: number) => {
   return badMemes[Math.floor(Math.random() * badMemes.length)];
 };
 
-export function SillyQuizComponent({ data, title }: { data: any; title: string }) {
+export function QuickQuizComponent({ data, title }: { data: any; title: string }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);

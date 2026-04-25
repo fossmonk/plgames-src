@@ -39,7 +39,8 @@ async def get_game_data(game_id: int, db: Session = Depends(get_db)):
         "id": game.id,
         "title": game.title,
         "type": game.game_type,
-        "data": game.content 
+        "data": game.content,
+        "subtype": game.game_subtype
     }
 
 @app.get("/")
