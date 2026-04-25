@@ -254,7 +254,7 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   background: #fff;
   border: 4px solid #333;
   /* The "Hand-Drawn" blob effect */
-  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; 
+  /* border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; */
   padding: 40px;
   text-align: center;
   box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
@@ -528,6 +528,39 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   text-align: center;
   font-size: 1.2rem;
   margin-bottom: 10px;
+}
+
+.capture-branding {
+  display: none; /* Hidden on the actual screen */
+  text-align: center;
+  padding: 10px 0;
+  /* Add a pink separator */
+  /* border-top: 2px solid var(--color-pink); */
+  margin-top: 15px;
+}
+
+.brand-result {
+  font-family: 'Arial Black', 'Helvetica Bold', sans-serif;
+  font-size: 1.2rem;
+  margin: 2px 0;
+  display: block;
+}
+
+.capture-link {
+  color: var(--color-pink); /* Pink link color */
+  font-weight: bold;
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+/* Specific class to show elements ONLY when capturing */
+.is-capturing .capture-branding {
+  display: block !important;
+}
+
+/* Specific class to hide elements ONLY when capturing */
+.is-capturing .no-capture {
+  display: none !important;
 }
 
 /* Force elements to stay light-mode colors */

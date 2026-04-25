@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useRef } from 'react';
+import html2canvas from 'html2canvas';
 
 const getGameOverMeme = (score: number, total: number) => {
   const ratio = score / total;
@@ -39,7 +39,44 @@ export function QuickQuizComponent({ data, title }: { data: any; title: string }
   const [currentIdx, setCurrentIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
-  const navigate = useNavigate();
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  const handleShareImage = async () => {
+    const element = sheetRef.current;
+    if (!element) return;
+
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const bgColor = isDarkMode ? '#121212' : '#ffffff';
+
+    // Capture the element
+    element.classList.add('is-capturing');
+    const canvas = await html2canvas(element, {
+      backgroundColor: bgColor,
+      scale: 2
+    });
+    element.classList.remove('is-capturing');
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const file = new File([blob], 'quiz-result.png', { type: 'image/png' });
+
+      // Native Share API
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'My Quick Quiz Score',
+          text: 'Check out my score on PinkLungi Games! Play at https://pinklungigames.com'
+        });
+      } else {
+        // Fallback for desktop/browsers without Share API
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'pinklungi-result.png';
+        link.click();
+      }
+    });
+  };
   
   // New state to track the radio selection
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -65,23 +102,32 @@ export function QuickQuizComponent({ data, title }: { data: any; title: string }
     const isPerfect = score === data.questions.length;
     const meme = getGameOverMeme(score, data.questions.length);
     const memeSrc = `/memes/${meme}`;
+    const logoSrc = `/logo.png`;
 
     return (
       <div className="container">
-        {/* Hand-drawn style wrapper */}
-        <div className="game-over-sheet">
+        <div className="game-over-sheet" ref={sheetRef}>
           <img src={memeSrc} alt="Result Meme" className="game-over-meme" />
-          
           {isPerfect && (
             <div className="party-popper-animation">🥳</div>
           )}
-
           <h3>Your Final Score:</h3>
-          <div className="score-text">
-            {score} / {data.questions.length}
+          <div className="score-text">{score} / {data.questions.length}</div>
+
+          <div className="capture-branding">
+            <img 
+              src={logoSrc}
+              alt="PinkLungi Logo" 
+              style={{ width: '50px', height: '50px' }} 
+            />
+            <h2 className="brand-result">PINKLUNGI GAMES</h2>
+            <p className="capture-link">pinklungigames.com</p>
           </div>
-          
-          <button onClick={() => navigate('/')}>PLAY AGAIN</button>
+
+          <div className="no-capture" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <button onClick={handleShareImage}>SHARE RESULT</button>
+            <button onClick={() => window.location.reload()}>PLAY AGAIN</button>
+          </div>
         </div>
       </div>
     );

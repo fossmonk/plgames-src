@@ -35,6 +35,7 @@ Write-Host "Installing dependencies (npm)..." -ForegroundColor Yellow
 npm install
 npm install react-router-dom
 npm install fuse.js
+npm install html2canvas
 
 cd ..
 
