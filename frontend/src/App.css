@@ -400,7 +400,14 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 }
 
 /* Connections */
-.conn-container { transition: transform 0.1s; }
+.conn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
 
 .shake { animation: shake 0.4s; }
 
@@ -422,35 +429,23 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 
 .conn-grid {
   display: grid;
-  /* Locks the grid to exactly 4 columns */
-  grid-template-columns: repeat(4, 1fr); 
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  width: 95%; 
-  max-width: 500px; 
-  margin: 20px auto;
+  width: 100%;
+  max-width: 500px; /* Perfect for desktop, fluid for mobile */
+  margin-bottom: 20px; /* Add space so controls don't overlap */
 }
 
 .tile {
-  aspect-ratio: 1 / 1;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background: #efefe6;
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  
-  /* Flex centering */
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Ensures perfect squares */
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  
-  /* SHRINK TO FIT LOGIC */
+  font-size: clamp(0.7rem, 3vw, 1rem); /* Dynamic text sizing */
   padding: 2px;
-  /* Scales font based on container width */
-  font-size: clamp(0.6rem, 2.5vw, 1rem); 
-  line-height: 1.1;
-  word-break: break-word;
+  box-sizing: border-box; /* Crucial: includes padding in total width */
+  overflow: hidden;
 }
 
 @media (max-width: 400px) {
@@ -480,10 +475,11 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 .controls {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin: 20px auto;
-  width: 95%;
-  flex-wrap: wrap; /* Wraps to next row if too narrow */
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
+  margin-top: 10px;
+  flex-wrap: wrap; /* Allows wrapping on tiny screens */
 }
 
 .controls button {
