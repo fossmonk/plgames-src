@@ -14,15 +14,23 @@ interface Game { id: number; title: string; type: string; desc: string; }
 function GameRunner() {
   const { gameId } = useParams();
   const [game, setGame] = useState<any>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/play/${gameId}`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
       .then(data => setGame(data))
-      .catch(err => console.error("Error loading game:", err));
+      .catch(err => {
+        console.error("Error loading game:", err)
+        setError(true);
+      });
   }, [gameId]);
 
-  if (!game) return <div className="container">Loading Game...</div>;
+  if (error) return <div className='container'><h2>Game not found!</h2></div>
+  if (!game) return <div className="container"><h2>Loading Game...</h2></div>;
 
   // The Switcher Pattern: Routes to the correct UI based on game type
   switch (game.type) {
