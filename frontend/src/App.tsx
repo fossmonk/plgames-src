@@ -10,6 +10,13 @@ const API_BASE = import.meta.env.VITE_API_URL;
 
 interface Game { id: number; title: string; type: string; desc: string; }
 
+const LoadingScreen = () => (
+  <div className='loading-screen'>
+    <div className='mascot-animation'></div>
+    <p style={{ marginTop: '20px', fontWeight: 'bold' }}>Putting on the PinkLungi...</p>
+  </div>
+);
+
 // --- Game Runner (The Dynamic Gateway) ---
 function GameRunner() {
   const { gameId } = useParams();
@@ -29,8 +36,8 @@ function GameRunner() {
       });
   }, [gameId]);
 
-  if (error) return <div className='container'><h2>Game not found!</h2></div>
-  if (!game) return <div className="container"><h2>Loading Game...</h2></div>;
+  if (error) return <div className='container'><h2>GAME NOT FOUND.</h2></div>
+  if (!game) return <LoadingScreen />;
 
   // The Switcher Pattern: Routes to the correct UI based on game type
   switch (game.type) {

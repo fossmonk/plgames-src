@@ -373,3 +373,28 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   text-align: center;
   color: #999;
 }
+
+/* Container for the loading screen */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+}
+
+/* The Sprite Box */
+.mascot-animation {
+  width: 217px;  /* Width of ONE frame */
+  height: 274px; /* Height of ONE frame */
+  background-image: url('/anims/wearingthelungi.png');
+  background-repeat: no-repeat;
+  
+  /* The Animation */
+  animation: play-animation 1.5s steps(6) infinite;
+}
+
+@keyframes play-animation {
+  from { background-position: 0px; }
+  to { background-position: -1301px; } /* 6 frames * 100px width */
+}
