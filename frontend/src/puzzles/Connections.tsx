@@ -102,7 +102,7 @@ export const Connections = ({ data, title }: { data: any; title: string }) => {
 
   return (
     <div className='container'>
-      <h1>{title}</h1>
+      <h2>{title}</h2>
       <div className="lives-display">LIVES: {'❤️'.repeat(lives)}</div>
       
       <div className={`conn-container ${shake ? 'shake' : ''}`}>

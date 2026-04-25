@@ -5,10 +5,11 @@ import { QuickQuizComponent } from './QuickQuiz.tsx'
 import { PuzzleComponent } from './Puzzle.tsx'
 import { LiveQuizComponent } from './LiveQuiz.tsx'
 import Layout from './components/Layout.tsx';
+import { SubtypeDescriptions, SubtypeNames } from './puzzles/SubtypeDescriptions.tsx';
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
-interface Game { id: number; title: string; type: string; desc: string; }
+interface Game { id: number; title: string; type: string; desc: string; subtype: string }
 
 const LoadingScreen = () => (
   <div className='loading-screen'>
@@ -56,20 +57,47 @@ function GameRunner() {
 function CategoryPage({ games }: { games: Game[] }) {
   const { categoryName } = useParams();
   const navigate = useNavigate();
-  const filtered = games.filter(g => g.type === categoryName);
+  
+  // Filter games by the main category (e.g., 'puzzle')
+  const categoryGames = games.filter(g => g.type === categoryName);
+  // Identify unique subtypes within this category
+  const subtypes = Array.from(new Set(categoryGames.map(g => g.subtype)));
+  // If there's only one subtype, just show the list. 
+  // If there are multiple, show a "Select Subtype" screen first.
+  const [selectedSubtype, setSelectedSubtype] = useState<string | null>(subtypes.length === 1 ? subtypes[0] : null);
+  // RESET logic: Whenever categoryName changes, clear the subtype selection
+  useEffect(() => {
+    setSelectedSubtype(null);
+  }, [categoryName]);
+
+  if (!selectedSubtype) {
+    return (
+      <div className="container">
+        <h1>Select {categoryName} Type</h1>
+        <div className="game-grid">
+          {subtypes.map(s => (
+            <div key={s} className="game-card" onClick={() => setSelectedSubtype(s)}>
+              <h2 className='force-light'>{SubtypeNames(s)}</h2>
+              <h4 className='force-light'>Click For Rules</h4>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
       <header>
-        <Link to="/">← Back</Link>
-        <h1 className="brand-name">{categoryName}</h1>
+        <button onClick={() => setSelectedSubtype(null)}>🔙 Back To {categoryName}</button>
+        <h1>{SubtypeNames(selectedSubtype)}</h1>
+        <p>{SubtypeDescriptions(selectedSubtype)}</p>
       </header>
       <div className="game-grid">
-        {filtered.map(game => (
+        {categoryGames.filter(g => g.subtype === selectedSubtype).map(game => (
           <div key={game.id} className="game-card">
-            <h3 className='force-light'>{game.title}</h3>
-            <p>{game.desc}</p>
-            <button onClick={() => navigate(`/play/${game.id}`)}>PLAY NOW</button>
+            <h3>{game.title}</h3>
+            <button onClick={() => navigate(`/play/${game.id}`)}>PLAY</button>
           </div>
         ))}
       </div>
@@ -88,7 +116,7 @@ function HomePage({ games }: { games: Game[] }) {
         {categories.map((cat) => (
           <div key={cat} className="game-card" onClick={() => navigate(`/category/${cat}`)}>
             <h3 className='force-light'>{cat}</h3>
-            <button>Browse</button>
+            <button>BROWSE</button>
           </div>
         ))}
       </div>

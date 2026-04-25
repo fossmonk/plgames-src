@@ -26,7 +26,7 @@ app.add_middleware(
 async def get_games(db: Session = Depends(get_db)):
     games = db.query(models.Game).all()
     return {"games": [
-        {"id": g.id, "title": g.title, "type": g.category, "desc": g.description} 
+        {"id": g.id, "title": g.title, "type": g.category, "desc": g.description, "subtype": g.game_subtype} 
         for g in games
     ]}
 
