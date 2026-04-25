@@ -422,16 +422,42 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 
 .conn-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-top: 20px;
+  /* Locks the grid to exactly 4 columns */
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 8px;
+  width: 95%; 
+  max-width: 500px; 
+  margin: 20px auto;
 }
 
 .tile {
-  background: #efefe6;
-  color: #000; /* Black text */
+  aspect-ratio: 1 / 1;
   border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #efefe6;
+  color: #000;
   font-weight: bold;
+  cursor: pointer;
+  
+  /* Flex centering */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  
+  /* SHRINK TO FIT LOGIC */
+  padding: 2px;
+  /* Scales font based on container width */
+  font-size: clamp(0.6rem, 2.5vw, 1rem); 
+  line-height: 1.1;
+  word-break: break-word;
+}
+
+@media (max-width: 400px) {
+  .tile {
+    padding: 1px;
+    font-size: 0.6rem;
+  }
 }
 
 .tile.active {
@@ -454,8 +480,10 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 .controls {
   display: flex;
   justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
+  gap: 8px;
+  margin: 20px auto;
+  width: 95%;
+  flex-wrap: wrap; /* Wraps to next row if too narrow */
 }
 
 .controls button {
@@ -465,8 +493,11 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   background: white;
   color: #000; /* Force black text */
   font-weight: bold;
+  font-size: 0.85rem;
   border-radius: 8px;
   opacity: 1; /* Ensure not transparent */
+  flex: 1 1 auto;
+  max-width: 120px;
 }
 
 .controls button:hover {
