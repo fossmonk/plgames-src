@@ -3,17 +3,34 @@
   --color-pink: #ff008a;
   --color-yellow: #fae34d;
   --color-text: #0c0d0e;
+  
+  /* Dark Mode Variables */
+  --bg-color: #ffffff;
+  --text-color: #0c0d0e;
+  --tile-bg: #efefe6;
+  --tile-text: #0c0d0e;
+  --active-bg: #5a594e;
+  --active-text: #ffffff;
 }
 
-body, 
-.container, 
-p, 
-h1, 
-h2, 
-h3, 
-span, 
-label {
-  color: #000000 !important;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #121212;
+    --text-color: #ffffff;
+    --tile-bg: #333333;
+    --tile-text: #ffffff;
+    --active-bg: #fbd334;
+    --active-text: #000000;
+  }
+}
+
+body {
+  color: var(--text-color) !important;
+  background-color: var(--bg-color);
+}
+
+p, h1, h2, h3, span, label {
+  color: var(--text-color);
 }
 
 /* Global Reset for Page Fit */
@@ -511,4 +528,13 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   text-align: center;
   font-size: 1.2rem;
   margin-bottom: 10px;
+}
+
+/* Force elements to stay light-mode colors */
+.force-light, 
+.force-light h3, 
+.force-light p, 
+.game-card h3 {
+  color: #0c0d0e !important; /* Forces black text */
+  background-color: transparent !important;
 }

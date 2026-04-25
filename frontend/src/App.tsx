@@ -67,7 +67,7 @@ function CategoryPage({ games }: { games: Game[] }) {
       <div className="game-grid">
         {filtered.map(game => (
           <div key={game.id} className="game-card">
-            <h3>{game.title}</h3>
+            <h3 className='force-light'>{game.title}</h3>
             <p>{game.desc}</p>
             <button onClick={() => navigate(`/play/${game.id}`)}>PLAY NOW</button>
           </div>
@@ -87,7 +87,7 @@ function HomePage({ games }: { games: Game[] }) {
       <div className="game-grid">
         {categories.map((cat) => (
           <div key={cat} className="game-card" onClick={() => navigate(`/category/${cat}`)}>
-            <h3>{cat}</h3>
+            <h3 className='force-light'>{cat}</h3>
             <button>Browse</button>
           </div>
         ))}
