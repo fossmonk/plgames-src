@@ -33,6 +33,10 @@ p, h1, h2, h3, span, label {
   color: var(--text-color);
 }
 
+p {
+  text-align: justify;
+}
+
 /* Global Reset for Page Fit */
 * {
   margin: 0;
