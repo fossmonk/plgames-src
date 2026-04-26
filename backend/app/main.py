@@ -35,11 +35,17 @@ async def get_game_data(game_id: int, db: Session = Depends(get_db)):
     game = db.query(models.Game).filter(models.Game.id == game_id).first()
     if not game:
         return {"error": "Game not found"}, 404
+    # Obfuscate the content before sending
+    import json
+    import base64
+    content_str = json.dumps(game.content)
+    encoded_content = base64.b64encode(content_str.encode('utf-8')).decode('utf-8')
+    
     return {
         "id": game.id,
         "title": game.title,
         "type": game.game_type,
-        "data": game.content,
+        "data": encoded_content,
         "subtype": game.game_subtype
     }
 

@@ -30,7 +30,17 @@ function GameRunner() {
         if (!res.ok) throw new Error();
         return res.json();
       })
-      .then(data => setGame(data))
+      .then(data => {
+        // Decode the obfuscated data
+        if (typeof data.data === 'string') {
+          try {
+            data.data = JSON.parse(atob(data.data));
+          } catch (e) {
+            console.error("Failed to decode game data", e);
+          }
+        }
+        setGame(data);
+      })
       .catch(err => {
         console.error("Error loading game:", err)
         setError(true);
