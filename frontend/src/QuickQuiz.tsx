@@ -1,8 +1,9 @@
 import { Mcq } from './quick_quizzes/Mcq';
+import { GuessMovie } from './quick_quizzes/GuessMovie';
 
 const SUBTYPE_MAP: Record<string, any> = {
   mcq: Mcq,
-  // Add more quick quiz subtypes here
+  guess_movie: GuessMovie,
 };
 
 export const QuickQuizComponent = ({ game }: { game: any }) => {
