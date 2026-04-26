@@ -16,7 +16,7 @@ export const Connections = ({ data, title }: { data: any; title: string }) => {
     data.groups.flatMap((g: any) => g.items).sort(() => Math.random() - 0.5)
   );
 
-  const isGameOver = lives === 0 || solvedGroups.length === 4;
+  const [showResults, setShowResults] = useState(false); // Add this
 
   const toggleSelect = (item: string) => {
     if (selected.includes(item)) {
@@ -50,19 +50,17 @@ export const Connections = ({ data, title }: { data: any; title: string }) => {
     if (selectedGroup) {
       setSubmitAnim(true);
       setTimeout(() => {
-        setSolvedGroups([...solvedGroups, { 
+        const newSolvedGroups = [...solvedGroups, { 
             ...selectedGroup, 
             color: DIFFICULTY_COLORS[selectedGroup.difficulty] 
-        }]);
+        }];
+        setSolvedGroups(newSolvedGroups);
         setGridItems(gridItems.filter((item: any) => !selected.includes(item)));
         setSelected([]);
         setSubmitAnim(false);
+
+        // If this was the last group, DON'T show results yet, just let them see the grid
       }, 500);
-    } else {
-      setLives(l => l - 1);
-      setShake(true);
-      setTimeout(() => setShake(false), 500);
-      setSelected([]);
     }
   };
 
@@ -80,19 +78,24 @@ export const Connections = ({ data, title }: { data: any; title: string }) => {
     }
   };
 
-  if (isGameOver) {
+  // Determine if we are in a final state
+  const isLost = lives === 0;
+  const isWon = solvedGroups.length === 4;
+
+  if (showResults || isLost) {
     return (
       <div className="container" style={{ textAlign: 'center' }}>
-        <h1>{solvedGroups.length === 4 ? "You Won!" : "Game Over"}</h1>
+        <h1>{isWon ? "You Won!" : "Game Over"}</h1>
 
         {guessHistory.length > 0 && (
           <div style={{ margin: '20px 0', fontSize: '1.5rem', whiteSpace: 'pre-line', lineHeight: '1.2' }}>
             {getEmojiGrid(guessHistory)}
           </div>
         )}
+        
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
           <button onClick={() => window.location.reload()}>PLAY AGAIN</button>
-          {solvedGroups.length === 4 && (
+          {isWon && (
             <button onClick={() => handleShare(title)}>SHARE RESULT</button>
           )}
         </div>
@@ -114,6 +117,15 @@ export const Connections = ({ data, title }: { data: any; title: string }) => {
             </div>
           ))}
         </div>
+
+        {/* Victory Lap Button appears only when the 4th group is solved */}
+        {isWon && (
+          <div style={{ textAlign: 'center', margin: '15px 0' }}>
+            <button onClick={() => setShowResults(true)} style={{ padding: '10px 20px', fontSize: '1rem' }}>
+              SEE FINAL RESULTS
+            </button>
+          </div>
+        )}
 
         <div className={`conn-grid ${submitAnim ? 'submit-anim' : ''}`}>
           {gridItems.map((item: any) => (
