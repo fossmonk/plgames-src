@@ -572,6 +572,9 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   display: none !important;
 }
 
+.wrong-border { border: 2px solid red; padding: 5px; border-radius: 4px; }
+.right-border { border: 2px solid green; padding: 5px; border-radius: 4px; }
+
 /* Force elements to stay light-mode colors */
 .force-light, 
 .force-light h3, 

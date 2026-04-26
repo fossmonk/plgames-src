@@ -1,98 +1,63 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 
 const getGameOverMeme = (score: number, total: number) => {
   const ratio = score / total;
-
-  // Perfect Score
-  if (ratio === 1) {
-    const perfectMemes = [
-      "vikrammeme.jpg",
-      "vakeelmeme.jpg"
-    ];
-    return perfectMemes[Math.floor(Math.random() * perfectMemes.length)];
-  }
-
-  // Good Score (> 70%)
-  if (ratio >= 0.7) {
-    const goodMemes = [
-      "nirulsahameme.jpg",
-      "answermeme.jpg",
-      "edamonememe.jpg",
-      "chandumeme.jpg",
-      "pulimeme.jpg"
-    ];
-    return goodMemes[Math.floor(Math.random() * goodMemes.length)];
-  }
-
-  // Needs Improvement
-  const badMemes = [
-    "sensememe.jpg",
-    "pattumalsarammeme.jpg",
-    "trappedmeme.jpg",
-    "pavanayimeme.jpg"
-  ];
-  return badMemes[Math.floor(Math.random() * badMemes.length)];
+  if (ratio === 1) return ["vikrammeme.jpg", "vakeelmeme.jpg"][Math.floor(Math.random() * 2)];
+  if (ratio >= 0.7) return ["nirulsahameme.jpg", "answermeme.jpg", "edamonememe.jpg", "chandumeme.jpg", "pulimeme.jpg"][Math.floor(Math.random() * 5)];
+  return ["sensememe.jpg", "pattumalsarammeme.jpg", "trappedmeme.jpg", "pavanayimeme.jpg"][Math.floor(Math.random() * 4)];
 };
 
 export function QuickQuizComponent({ data, title }: { data: any; title: string }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [userAnswers, setUserAnswers] = useState<any[]>([]);
+  const [showReview, setShowReview] = useState(false);
+  // Store the meme once when the game finishes so it doesn't reload
+  const [meme, setMeme] = useState<string>(""); 
   const sheetRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (finished) {
+      setMeme(getGameOverMeme(score, data.questions.length));
+    }
+  }, [finished]);
 
   const handleShareImage = async () => {
     const element = sheetRef.current;
     if (!element) return;
-
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const bgColor = isDarkMode ? '#121212' : '#ffffff';
-
-    // Capture the element
     element.classList.add('is-capturing');
-    const canvas = await html2canvas(element, {
-      backgroundColor: bgColor,
-      scale: 2
-    });
+    const canvas = await html2canvas(element, { backgroundColor: '#ffffff', scale: 2 });
     element.classList.remove('is-capturing');
 
     canvas.toBlob(async (blob) => {
       if (!blob) return;
       const file = new File([blob], 'quiz-result.png', { type: 'image/png' });
-
-      // Native Share API
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'My Quick Quiz Score',
-          text: 'Check out my score on PinkLungi Games! Play at https://pinklungigames.com'
-        });
+        await navigator.share({ files: [file], title: 'My Score', text: 'PinkLungi Games!' });
       } else {
-        // Fallback for desktop/browsers without Share API
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'pinklungi-result.png';
+        link.download = 'quiz-result.png';
         link.click();
       }
     });
   };
-  
-  // New state to track the radio selection
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
   const handleSubmit = () => {
-    if (selectedOption === null) return; // Don't allow submission without selection
+    if (selectedOption === null) return;
+    const q = data.questions[currentIdx];
+    const isCorrect = selectedOption === q.correct_idx;
+    if (isCorrect) setScore(score + 1);
+    
+    setUserAnswers([...userAnswers, { ...q, userChoice: selectedOption, isCorrect }]);
 
-    // Check if correct
-    if (selectedOption === data.questions[currentIdx].correct_idx) {
-      setScore(score + 1);
-    }
-
-    // Move to next
     if (currentIdx + 1 < data.questions.length) {
       setCurrentIdx(currentIdx + 1);
-      setSelectedOption(null); // Reset for next question
+      setSelectedOption(null);
     } else {
       setFinished(true);
     }
@@ -100,70 +65,70 @@ export function QuickQuizComponent({ data, title }: { data: any; title: string }
 
   if (finished) {
     const isPerfect = score === data.questions.length;
-    const meme = getGameOverMeme(score, data.questions.length);
-    const memeSrc = `/memes/${meme}`;
-    const logoSrc = `/logo.png`;
-
     return (
       <div className="container">
         <div className="game-over-sheet" ref={sheetRef}>
-          <img src={memeSrc} alt="Result Meme" className="game-over-meme" />
-          {isPerfect && (
-            <div className="party-popper-animation">🥳</div>
-          )}
+          <img src={`/memes/${meme}`} alt="Result Meme" className="game-over-meme" />
+          {isPerfect && <div className="party-popper-animation">🥳</div>}
+          
           <h3>Your Final Score:</h3>
           <div className="score-text">{score} / {data.questions.length}</div>
 
-          <div className="capture-branding">
-            <img 
-              src={logoSrc}
-              alt="PinkLungi Logo" 
-              style={{ width: '50px', height: '50px' }} 
-            />
-            <h2 className="brand-result">PINKLUNGI GAMES</h2>
-            <h5 className="capture-link">pinklungigames.com</h5>
-          </div>
-
-          <div className="no-capture" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <button onClick={handleShareImage}>SHARE RESULT</button>
-            <button onClick={() => window.location.reload()}>PLAY AGAIN</button>
-          </div>
+          {showReview ? (
+            <div className="results-review" style={{ textAlign: 'left' }}>
+              {userAnswers.map((q, idx) => (
+                <div key={idx} className="game-card" style={{ marginBottom: '15px' }}>
+                  <p><strong>{q.text}</strong></p>
+                  {q.options.map((opt: string, i: number) => {
+                    const isSelected = q.userChoice === i;
+                    const isCorrect = q.correct_idx === i;
+                    return (
+                      <div key={i} className={`radio-option ${isSelected && !q.isCorrect ? 'wrong-border' : ''} ${isCorrect ? 'right-border' : ''}`}>
+                        {opt} {isSelected && !q.isCorrect && '❌'} {isCorrect && '✅'}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+              <button onClick={() => setShowReview(false)}>HIDE SOLUTIONS</button>
+            </div>
+          ) : (
+            <>
+              <div className="capture-branding">
+                <img src={`/logo.png`} alt="Logo" style={{ width: '50px', height: '50px' }} />
+                <h2 className="brand-result">PINKLUNGI GAMES</h2>
+                <h5 className="capture-link">pinklungigames.com</h5>
+              </div>
+              <div className="no-capture" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <button onClick={() => setShowReview(true)}>VIEW SOLUTIONS</button>
+                <button onClick={handleShareImage}>SHARE RESULT</button>
+                <button onClick={() => window.location.reload()}>PLAY AGAIN</button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     );
   }
 
-  const q = data.questions[currentIdx];
-
   return (
     <div className="container">
-      <h1 className="brand-name">{title}</h1>
+      <h1 className="brand-name" style={{ marginBottom: '20px' }}>{title}</h1>
+      <div className="progress-indicator" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
+        Question {currentIdx + 1} of {data.questions.length}
+      </div>
+
       <div className="game-card">
-        <h3>{q.text}</h3>
-        
-        {/* Radio Button Group */}
+        <h3>{data.questions[currentIdx].text}</h3>
         <div className="radio-group">
-          {q.options.map((opt: string, i: number) => (
+          {data.questions[currentIdx].options.map((opt: string, i: number) => (
             <label key={i} className="radio-option">
-              <input
-                type="radio"
-                name="quiz-option"
-                value={i}
-                checked={selectedOption === i}
-                onChange={() => setSelectedOption(i)}
-              />
+              <input type="radio" name="quiz" checked={selectedOption === i} onChange={() => setSelectedOption(i)} />
               {opt}
             </label>
           ))}
         </div>
-
-        <button 
-          className="submit-btn" 
-          disabled={selectedOption === null} 
-          onClick={handleSubmit}
-        >
-          Submit Answer
-        </button>
+        <button className="submit-btn" disabled={selectedOption === null} onClick={handleSubmit}>Submit Answer</button>
       </div>
     </div>
   );
