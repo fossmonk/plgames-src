@@ -61,6 +61,11 @@ export const Connections = ({ data, title }: { data: any; title: string }) => {
 
         // If this was the last group, DON'T show results yet, just let them see the grid
       }, 500);
+    } else {
+      setLives(l => l-1);
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      setSelected([]);
     }
   };
 
