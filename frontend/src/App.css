@@ -31,6 +31,7 @@ body {
 
 p, h1, h2, h3, span, label {
   color: var(--text-color);
+  font-family: 'Arial-Black', 'Helvetica Bold', sans-serif
 }
 
 p {

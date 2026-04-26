@@ -73,12 +73,11 @@ function CategoryPage({ games }: { games: Game[] }) {
   if (!selectedSubtype) {
     return (
       <div className="container">
-        <h1>Select {categoryName} Type</h1>
+        <h2>Select {categoryName} Type</h2>
         <div className="game-grid">
           {subtypes.map(s => (
             <div key={s} className="game-card" onClick={() => setSelectedSubtype(s)}>
               <h2 className='force-light'>{SubtypeNames(s)}</h2>
-              <h4 className='force-light'>Click For Rules</h4>
             </div>
           ))}
         </div>

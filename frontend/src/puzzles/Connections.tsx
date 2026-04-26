@@ -54,7 +54,7 @@ export const Connections = ({ data, title }: { data: any; title: string }) => {
             ...selectedGroup, 
             color: DIFFICULTY_COLORS[selectedGroup.difficulty] 
         }]);
-        setGridItems(gridItems.filter(item => !selected.includes(item)));
+        setGridItems(gridItems.filter((item: any) => !selected.includes(item)));
         setSelected([]);
         setSubmitAnim(false);
       }, 500);
@@ -116,7 +116,7 @@ export const Connections = ({ data, title }: { data: any; title: string }) => {
         </div>
 
         <div className={`conn-grid ${submitAnim ? 'submit-anim' : ''}`}>
-          {gridItems.map((item) => (
+          {gridItems.map((item: any) => (
             <button 
               key={item}
               className={`tile ${selected.includes(item) ? 'active' : ''}`}
