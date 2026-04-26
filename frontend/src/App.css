@@ -42,10 +42,6 @@ p {
   text-align: center;
 }
 
-.capture-link p {
-  text-align: center;
-}
-
 /* Global Reset for Page Fit */
 * {
   margin: 0;

@@ -121,7 +121,7 @@ export function QuickQuizComponent({ data, title }: { data: any; title: string }
               style={{ width: '50px', height: '50px' }} 
             />
             <h2 className="brand-result">PINKLUNGI GAMES</h2>
-            <p className="capture-link">pinklungigames.com</p>
+            <h5 className="capture-link">pinklungigames.com</h5>
           </div>
 
           <div className="no-capture" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
