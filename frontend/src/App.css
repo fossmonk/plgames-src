@@ -38,6 +38,10 @@ p {
   text-align: justify;
 }
 
+.main-footer p {
+  text-align: center;
+}
+
 /* Global Reset for Page Fit */
 * {
   margin: 0;

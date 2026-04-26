@@ -124,7 +124,7 @@ function HomePage({ games }: { games: Game[] }) {
 }
 
 export default function App() {
-  const [games, setGames] = useState<Game[]>([]);
+  const [games, setGames] = useState<Game[] | null>(null);
   useEffect(() => {
     fetch(`${API_BASE}/api/games`)
       .then(res => res.json())
@@ -135,11 +135,15 @@ export default function App() {
   return (
     <BrowserRouter>
       <Layout>
-        <Routes>
-          <Route path="/" element={<HomePage games={games} />} />
-          <Route path="/category/:categoryName" element={<CategoryPage games={games} />} />
-          <Route path="/play/:gameId" element={<GameRunner />} />
-        </Routes>
+        {games === null ? (
+          <LoadingScreen /> // Shows inside the Layout
+        ) : (
+          <Routes>
+            <Route path="/" element={<HomePage games={games} />} />
+            <Route path="/category/:categoryName" element={<CategoryPage games={games} />} />
+            <Route path="/play/:gameId" element={<GameRunner />} />
+          </Routes>
+        )}
       </Layout>
     </BrowserRouter>
   );
