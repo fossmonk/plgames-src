@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useParams, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
 import { QuickQuizComponent } from './QuickQuiz.tsx'
 import { PuzzleComponent } from './Puzzle.tsx'
@@ -43,7 +43,7 @@ function GameRunner() {
   // The Switcher Pattern: Routes to the correct UI based on game type
   switch (game.type) {
     case 'quick_quiz':
-      return <QuickQuizComponent data={game.data} title={game.title} />;
+      return <QuickQuizComponent game={game} />;
     case 'puzzle':
       return <PuzzleComponent game={game} />;
     case 'live_quiz':
@@ -57,7 +57,7 @@ function GameRunner() {
 function CategoryPage({ games }: { games: Game[] }) {
   const { categoryName } = useParams();
   const navigate = useNavigate();
-  
+
   // Filter games by the main category (e.g., 'puzzle')
   const categoryGames = games.filter(g => g.type === categoryName);
   // Identify unique subtypes within this category
