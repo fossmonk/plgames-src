@@ -8,6 +8,9 @@ import time
 import base64
 from pydantic import BaseModel
 import json
+import hmac
+import hashlib
+import os
 
 # Initialize FastAPI
 app = FastAPI()
@@ -58,47 +61,61 @@ async def get_game_data(game_id: int, db: Session = Depends(get_db)):
 async def root():
     return {"message": "PINKLUNGI GAMES"}
 
-# --- Game Session API (Gatekeeper) ---
-active_sessions = {}
+SECRET_KEY = os.getenv("SECRET_KEY", "pinklungi_fallback_secret")
 
-class SessionStartResponse(BaseModel):
-    session_id: str
+def create_signature(payload: str) -> str:
+    return hmac.new(SECRET_KEY.encode(), payload.encode(), hashlib.sha256).hexdigest()
 
-@app.post("/api/play/{game_id}/start_session", response_model=SessionStartResponse)
-async def start_session(game_id: int):
-    session_id = str(uuid.uuid4())
-    active_sessions[session_id] = {
-        "game_id": game_id,
-        "questions": {},
-        "finished": False
-    }
-    return {"session_id": session_id}
+class TokenResponse(BaseModel):
+    token: str
 
-@app.post("/api/session/{session_id}/start_question/{q_index}")
-async def start_question(session_id: str, q_index: int):
-    if session_id not in active_sessions:
-        return {"error": "Invalid session"}
-    
-    if q_index not in active_sessions[session_id]["questions"]:
-        active_sessions[session_id]["questions"][q_index] = time.time()
+@app.post("/api/play/{game_id}/start_question/{q_index}", response_model=TokenResponse)
+async def start_question(game_id: int, q_index: int):
+    start_time = int(time.time())
+    payload = f"{game_id}:{q_index}:{start_time}"
+    signature = create_signature(payload)
+    return {"token": f"{payload}:{signature}"}
+
+@app.post("/api/play/{game_id}/finish", response_model=TokenResponse)
+async def finish_session(game_id: int):
+    payload = f"{game_id}:finished"
+    signature = create_signature(payload)
+    return {"token": f"{payload}:{signature}"}
+
+@app.get("/api/image")
+async def get_image(token: str, blur: int = 0, idx: int = -1, db: Session = Depends(get_db)):
+    if not token:
+        return {"error": "Missing token"}
         
-    return {"status": "success"}
-
-@app.post("/api/session/{session_id}/finish")
-async def finish_session(session_id: str):
-    if session_id not in active_sessions:
-        return {"error": "Invalid session"}
-    active_sessions[session_id]["finished"] = True
-    return {"status": "success"}
-
-@app.get("/api/session/{session_id}/image/{q_index}")
-async def get_image(session_id: str, q_index: int, blur: int = 0, db: Session = Depends(get_db)):
-    if session_id not in active_sessions:
-        return {"error": "Invalid session"}
+    parts = token.split(":")
+    if len(parts) == 4:
+        # q_index format: game_id:q_index:start_time:signature
+        game_id_str, q_index_str, start_time_str, signature = parts
+        payload = f"{game_id_str}:{q_index_str}:{start_time_str}"
+        is_finished = False
+    elif len(parts) == 3 and parts[1] == "finished":
+        # finish format: game_id:finished:signature
+        game_id_str, _, signature = parts
+        payload = f"{game_id_str}:finished"
+        is_finished = True
+        q_index_str = str(idx) # Must be provided in query param for finish token
+    else:
+        return {"error": "Invalid token format"}
         
-    session_data = active_sessions[session_id]
-    
-    game = db.query(models.Game).filter(models.Game.id == session_data["game_id"]).first()
+    # Verify signature
+    expected_sig = create_signature(payload)
+    if not hmac.compare_digest(signature, expected_sig):
+        return {"error": "Invalid signature"}
+        
+    try:
+        game_id = int(game_id_str)
+        q_index = int(q_index_str)
+        if not is_finished:
+            start_time = int(start_time_str)
+    except ValueError:
+        return {"error": "Invalid token data"}
+        
+    game = db.query(models.Game).filter(models.Game.id == game_id).first()
     if not game or not game.content or "questions" not in game.content:
         return {"error": "Game data not found"}
         
@@ -109,40 +126,27 @@ async def get_image(session_id: str, q_index: int, blur: int = 0, db: Session = 
     question_data = questions[q_index]
     
     images_base64 = question_data.get("images_base64")
-    
     if not images_base64:
-        # Fallback to legacy
-        image_group_id = question_data.get("image_group_id")
-        if image_group_id:
-            return {"error": "This quiz uses the deprecated UUID file system. Please regenerate."}
         image_urls = question_data.get("image_urls")
         if image_urls:
             return {"error": "Legacy quiz, no protected image."}
         return {"error": "No image data found"}
 
-    if session_data.get("finished"):
+    if is_finished:
         allowed_blur = 0
     else:
-        start_time = session_data["questions"].get(q_index)
-        if not start_time:
-            allowed_blur = 20
+        elapsed = time.time() - start_time
+        if elapsed > 40:
+            allowed_blur = 0
+        elif elapsed > 30:
+            allowed_blur = 5
+        elif elapsed > 20:
+            allowed_blur = 10
+        elif elapsed > 10:
+            allowed_blur = 15
         else:
-            elapsed = time.time() - start_time
-            if elapsed > 40:
-                allowed_blur = 0
-            elif elapsed > 30:
-                allowed_blur = 5
-            elif elapsed > 20:
-                allowed_blur = 10
-            elif elapsed > 10:
-                allowed_blur = 15
-            else:
-                allowed_blur = 20
+            allowed_blur = 20
                 
-    # Determine the final blur to return
-    # If the user requested a specific blur and it's >= allowed_blur, we can serve it.
-    # (Higher blur value means MORE blurry, so they are allowed to ask for blurrier images).
-    # Otherwise, return the allowed_blur.
     final_blur = blur if blur >= allowed_blur else allowed_blur
     
     b64_str = images_base64.get(str(final_blur))

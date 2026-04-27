@@ -20,34 +20,32 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
   const [meme, setMeme] = useState<string>("");
   const sheetRef = useRef<HTMLDivElement>(null);
 
-  const [sessionId, setSessionId] = useState<string | null>(null);
-
-  // Start session
-  useEffect(() => {
-    if (!gameId) return;
-    fetch(`${API_BASE}/api/play/${gameId}/start_session`, { method: 'POST' })
-      .then(res => res.json())
-      .then(d => {
-        if (d.session_id) setSessionId(d.session_id);
-      })
-      .catch(err => console.error("Session start error:", err));
-  }, [gameId]);
+  const [questionToken, setQuestionToken] = useState<string | null>(null);
+  const [finishToken, setFinishToken] = useState<string | null>(null);
 
   // Start question
   useEffect(() => {
-    if (!sessionId || finished) return;
-    fetch(`${API_BASE}/api/session/${sessionId}/start_question/${currentIdx}`, { method: 'POST' })
+    if (!gameId || finished) return;
+    fetch(`${API_BASE}/api/play/${gameId}/start_question/${currentIdx}`, { method: 'POST' })
+      .then(res => res.json())
+      .then(d => {
+        if (d.token) setQuestionToken(d.token);
+      })
       .catch(err => console.error("Start question error:", err));
-  }, [sessionId, currentIdx, finished]);
+  }, [gameId, currentIdx, finished]);
 
+  // Finish game
   useEffect(() => {
-    if (finished) {
+    if (finished && gameId) {
       setMeme(getGameOverMeme(score, data.questions.length * 10)); // max score is 10 per q
-      if (sessionId) {
-        fetch(`${API_BASE}/api/session/${sessionId}/finish`, { method: 'POST' });
-      }
+      fetch(`${API_BASE}/api/play/${gameId}/finish`, { method: 'POST' })
+        .then(res => res.json())
+        .then(d => {
+          if (d.token) setFinishToken(d.token);
+        })
+        .catch(err => console.error("Finish error:", err));
     }
-  }, [finished, sessionId]);
+  }, [finished, gameId]);
 
   // Timer logic
   useEffect(() => {
@@ -159,7 +157,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
               {userAnswers.map((q, idx) => (
                 <div key={idx} className="game-card" style={{ marginBottom: '15px' }}>
                   <h3>{q.valid_answers[0]}</h3>
-                  <img src={q.image_urls ? q.image_urls[4] : (sessionId ? `${API_BASE}/api/session/${sessionId}/image/${idx}?blur=0` : '')} alt="Movie Scene" style={{ width: '100%', borderRadius: '8px', marginTop: '10px' }} />
+                  <img src={q.image_urls ? q.image_urls[4] : (finishToken ? `${API_BASE}/api/image?token=${finishToken}&idx=${idx}&blur=0` : '')} alt="Movie Scene" style={{ width: '100%', borderRadius: '8px', marginTop: '10px' }} />
                   <p style={{ marginTop: '10px' }}>
                     <strong>Score achieved:</strong> {q.scoreAchieved} / 10
                   </p>
@@ -203,8 +201,8 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
   let currentImage = "";
   if (currentQ.image_urls) {
     currentImage = currentQ.image_urls[urlIndex];
-  } else if (sessionId) {
-    currentImage = `${API_BASE}/api/session/${sessionId}/image/${currentIdx}?blur=${blurLevel}`;
+  } else if (questionToken) {
+    currentImage = `${API_BASE}/api/image?token=${questionToken}&blur=${blurLevel}`;
   }
 
   return (
