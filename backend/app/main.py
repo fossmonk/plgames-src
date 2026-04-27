@@ -135,7 +135,9 @@ async def get_image(token: str, blur: int = 0, idx: int = -1, db: Session = Depe
     if is_finished:
         allowed_blur = 0
     else:
-        elapsed = time.time() - start_time
+        GRACE_PERIOD = 5 # Allow pre-fetching 5s early
+        elapsed = (time.time() - start_time) + GRACE_PERIOD
+        
         if elapsed > 40:
             allowed_blur = 0
         elif elapsed > 30:
@@ -154,4 +156,8 @@ async def get_image(token: str, blur: int = 0, idx: int = -1, db: Session = Depe
         return {"error": "Requested blur level not found"}
         
     image_bytes = base64.b64decode(b64_str)
-    return Response(content=image_bytes, media_type="image/jpeg")
+    return Response(
+        content=image_bytes, 
+        media_type="image/jpeg",
+        headers={"Cache-Control": "public, max-age=20"}
+    )

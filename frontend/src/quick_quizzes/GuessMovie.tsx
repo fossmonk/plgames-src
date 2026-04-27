@@ -63,6 +63,23 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
     }
   }, [timeLeft, finished]);
 
+  // Prefetching logic to make transitions snappy
+  useEffect(() => {
+    if (finished || !questionToken) return;
+    
+    let nextBlur: number | null = null;
+    // We start prefetching 3 seconds before the timer hits 40, 30, 20, 10
+    if (timeLeft === 43) nextBlur = 15;
+    if (timeLeft === 33) nextBlur = 10;
+    if (timeLeft === 23) nextBlur = 5;
+    if (timeLeft === 13) nextBlur = 0;
+
+    if (nextBlur !== null) {
+      const img = new Image();
+      img.src = `${API_BASE}/api/image?token=${questionToken}&blur=${nextBlur}`;
+    }
+  }, [timeLeft, questionToken, finished]);
+
   const getBlurLevel = (time: number) => {
     if (time > 40) return 20;
     if (time > 30) return 15;
