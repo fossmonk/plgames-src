@@ -3,22 +3,18 @@ from tkinter import messagebox
 from tkinter import filedialog
 import json
 import os
+import base64
+from io import BytesIO
 from PIL import Image, ImageFilter
 
 # --- State ---
 questions_list = []
 
 def process_image(local_path):
-    # Ensure dir exists
-    out_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "public", "images", "movies"))
-    os.makedirs(out_dir, exist_ok=True)
-    
-    base_name = os.path.splitext(os.path.basename(local_path))[0]
-    
     img = Image.open(local_path).convert("RGB")
     
     blurs = [20, 15, 10, 5, 0]
-    urls = []
+    images_base64 = {}
     
     for b in blurs:
         if b > 0:
@@ -26,13 +22,13 @@ def process_image(local_path):
         else:
             blurred = img
         
-        out_name = f"{base_name}_blur{b}.jpg"
-        out_path = os.path.join(out_dir, out_name)
-        blurred.save(out_path, "JPEG", quality=85)
+        buffer = BytesIO()
+        blurred.save(buffer, format="JPEG", quality=85)
+        b64_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
         
-        urls.append(f"/images/movies/{out_name}")
+        images_base64[str(b)] = b64_str
         
-    return urls
+    return images_base64
 
 def browse_file():
     filepath = filedialog.askopenfilename(filetypes=[("Image Files", "*.jpg *.jpeg *.png *.webp")])
@@ -53,11 +49,11 @@ def add_question():
         # Split by comma and clean up whitespace
         valid_answers = [ans.strip() for ans in ans_raw.split(',') if ans.strip()]
         
-        # Process images and get the 5 urls
-        image_urls = process_image(local_path)
+        # Process images and get base64 dict
+        images_base64 = process_image(local_path)
         
         q_data = {
-            "image_urls": image_urls,
+            "images_base64": images_base64,
             "valid_answers": valid_answers,
             "hint": hint
         }

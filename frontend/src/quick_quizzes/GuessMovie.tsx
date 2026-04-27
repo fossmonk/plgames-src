@@ -4,25 +4,50 @@ import Fuse from 'fuse.js';
 
 import { getGameOverMeme } from '../utils/memeUtils';
 
-export function GuessMovie({ data, title }: { data: any; title: string }) {
+const API_BASE = import.meta.env.VITE_API_URL;
+
+export function GuessMovie({ data, title, gameId }: { data: any; title: string; gameId?: number }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
-  
+
   const [timeLeft, setTimeLeft] = useState(50);
   const [userGuess, setUserGuess] = useState("");
   const [wrongShake, setWrongShake] = useState(false);
 
   const [userAnswers, setUserAnswers] = useState<any[]>([]);
   const [showReview, setShowReview] = useState(false);
-  const [meme, setMeme] = useState<string>(""); 
+  const [meme, setMeme] = useState<string>("");
   const sheetRef = useRef<HTMLDivElement>(null);
+
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  // Start session
+  useEffect(() => {
+    if (!gameId) return;
+    fetch(`${API_BASE}/api/play/${gameId}/start_session`, { method: 'POST' })
+      .then(res => res.json())
+      .then(d => {
+        if (d.session_id) setSessionId(d.session_id);
+      })
+      .catch(err => console.error("Session start error:", err));
+  }, [gameId]);
+
+  // Start question
+  useEffect(() => {
+    if (!sessionId || finished) return;
+    fetch(`${API_BASE}/api/session/${sessionId}/start_question/${currentIdx}`, { method: 'POST' })
+      .catch(err => console.error("Start question error:", err));
+  }, [sessionId, currentIdx, finished]);
 
   useEffect(() => {
     if (finished) {
       setMeme(getGameOverMeme(score, data.questions.length * 10)); // max score is 10 per q
+      if (sessionId) {
+        fetch(`${API_BASE}/api/session/${sessionId}/finish`, { method: 'POST' });
+      }
     }
-  }, [finished]);
+  }, [finished, sessionId]);
 
   // Timer logic
   useEffect(() => {
@@ -59,7 +84,7 @@ export function GuessMovie({ data, title }: { data: any; title: string }) {
   const handleNextQuestion = (pointsAchieved: number) => {
     const q = data.questions[currentIdx];
     setUserAnswers([...userAnswers, { ...q, scoreAchieved: pointsAchieved }]);
-    
+
     if (currentIdx + 1 < data.questions.length) {
       setCurrentIdx(currentIdx + 1);
       setTimeLeft(50);
@@ -72,16 +97,16 @@ export function GuessMovie({ data, title }: { data: any; title: string }) {
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!userGuess.trim()) return;
-    
+
     const q = data.questions[currentIdx];
     // fuse.js configuration
     const fuse = new Fuse(q.valid_answers, {
       includeScore: true,
       threshold: 0.3, // 0.0 is exact match, 1.0 is anything goes
     });
-    
+
     const result = fuse.search(userGuess.trim());
-    
+
     if (result.length > 0 && result[0].score! < 0.4) {
       // correct guess!
       const points = getPossibleScore(timeLeft);
@@ -125,7 +150,7 @@ export function GuessMovie({ data, title }: { data: any; title: string }) {
         <div className="game-over-sheet" ref={sheetRef}>
           <img src={`/memes/${meme}`} alt="Result Meme" className="game-over-meme" />
           {isPerfect && <div className="party-popper-animation">🥳</div>}
-          
+
           <h3>Your Final Score:</h3>
           <div className="score-text">{score} / {maxScore}</div>
 
@@ -134,7 +159,7 @@ export function GuessMovie({ data, title }: { data: any; title: string }) {
               {userAnswers.map((q, idx) => (
                 <div key={idx} className="game-card" style={{ marginBottom: '15px' }}>
                   <h3>{q.valid_answers[0]}</h3>
-                  <img src={q.image_urls[4]} alt="Movie Scene" style={{ width: '100%', borderRadius: '8px', marginTop: '10px' }} />
+                  <img src={q.image_urls ? q.image_urls[4] : (sessionId ? `${API_BASE}/api/session/${sessionId}/image/${idx}?blur=0` : '')} alt="Movie Scene" style={{ width: '100%', borderRadius: '8px', marginTop: '10px' }} />
                   <p style={{ marginTop: '10px' }}>
                     <strong>Score achieved:</strong> {q.scoreAchieved} / 10
                   </p>
@@ -162,7 +187,7 @@ export function GuessMovie({ data, title }: { data: any; title: string }) {
   }
 
   const currentQ = data.questions[currentIdx];
-  
+
   const getUrlIndex = (time: number) => {
     if (time > 40) return 0; // blur20
     if (time > 30) return 1; // blur15
@@ -173,12 +198,19 @@ export function GuessMovie({ data, title }: { data: any; title: string }) {
 
   const urlIndex = getUrlIndex(timeLeft);
   const possiblePoints = getPossibleScore(timeLeft);
-  const currentImage = currentQ.image_urls[urlIndex];
+  const blurLevel = getBlurLevel(timeLeft);
+
+  let currentImage = "";
+  if (currentQ.image_urls) {
+    currentImage = currentQ.image_urls[urlIndex];
+  } else if (sessionId) {
+    currentImage = `${API_BASE}/api/session/${sessionId}/image/${currentIdx}?blur=${blurLevel}`;
+  }
 
   return (
     <div className="container">
       <h1 className="brand-name" style={{ marginBottom: '20px' }}>{title}</h1>
-      
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div className="progress-indicator" style={{ fontWeight: 'bold' }}>
           Movie {currentIdx + 1} of {data.questions.length}
@@ -190,14 +222,14 @@ export function GuessMovie({ data, title }: { data: any; title: string }) {
 
       <div className={`game-card ${wrongShake ? 'shake' : ''}`} style={{ textAlign: 'center' }}>
         <div style={{ position: 'relative', width: '100%', overflow: 'hidden', borderRadius: '12px', marginBottom: '20px' }}>
-          <img 
-            src={currentImage} 
-            alt="Movie Scene" 
+          <img
+            src={currentImage}
+            alt="Movie Scene"
             style={{
-              width: '100%', 
+              width: '100%',
               height: 'auto',
               display: 'block'
-            }} 
+            }}
           />
           <div style={{
             position: 'absolute',
@@ -218,8 +250,8 @@ export function GuessMovie({ data, title }: { data: any; title: string }) {
         )}
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={userGuess}
             onChange={(e) => setUserGuess(e.target.value)}
             placeholder="Type movie name..."

@@ -10,12 +10,17 @@ const SUBTYPE_DESC_MAP: Record<string, string> = {
   There will be 4 options for each question in quiz. You can select one and submit. You can't
   change your choice once submitted. Your score will be shown after you have answered all
   the questions.
+  `,
+  guess_movie: `
+  Guess the movie by looking at the blurred scene from it before the time runs out. As time passes,
+  the image gets clearer, and you get less points. If you answer quickly, you get more points. All the best!
   `
 };
 
 const SUBTYPE_TO_NAME_MAP: Record<string, string> = {
   connections: "CONNECTIONS",
-  mcq: "The One With Multiple Options"
+  mcq: "The One With Multiple Options",
+  guess_movie: "Guess The Movie From The Scene",
 }
 
 export const SubtypeDescriptions = (subtype: string) => {

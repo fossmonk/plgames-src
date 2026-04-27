@@ -13,7 +13,7 @@ class Game(Base):
     title = Column(String)
     category = Column(String)
     game_type = Column(String)
-    game_subtype = Column(String, "NA")
+    game_subtype = Column(String)
     description = Column(String)
     content = Column(JSON)
 
@@ -26,6 +26,7 @@ def import_json(filepath):
         title=data['title'],
         category='Quick Quizzes',
         game_type='quick_quiz',
+        game_subtype=data.get('subtype'),
         description=data['description'],
         content=data['content']
     )

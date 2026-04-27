@@ -13,5 +13,5 @@ export const QuickQuizComponent = ({ game }: { game: any }) => {
 
   if (!Component) return <div>Quick Quiz type not supported yet!</div>;
 
-  return <Component data={game.data} title={game.title} />;
+  return <Component data={game.data} title={game.title} gameId={game.id} />;
 };
