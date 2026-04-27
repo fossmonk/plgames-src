@@ -161,3 +161,31 @@ async def get_image(token: str, blur: int = 0, idx: int = -1, db: Session = Depe
         media_type="image/jpeg",
         headers={"Cache-Control": "public, max-age=20"}
     )
+
+@app.get("/api/public/game/{game_id}/image/{q_index}")
+async def get_public_image(game_id: int, q_index: int, db: Session = Depends(get_db)):
+    # This endpoint strictly only returns the blur=20 version
+    game = db.query(models.Game).filter(models.Game.id == game_id).first()
+    if not game or not game.content or "questions" not in game.content:
+        return {"error": "Game data not found"}
+        
+    questions = game.content["questions"]
+    if q_index < 0 or q_index >= len(questions):
+        return {"error": "Invalid question index"}
+        
+    question_data = questions[q_index]
+    images_base64 = question_data.get("images_base64")
+    
+    if not images_base64:
+        return {"error": "No image data found"}
+        
+    b64_str = images_base64.get("20") # Strictly blur 20
+    if not b64_str:
+        return {"error": "Initial blur level not found"}
+        
+    image_bytes = base64.b64decode(b64_str)
+    return Response(
+        content=image_bytes, 
+        media_type="image/jpeg",
+        headers={"Cache-Control": "public, max-age=60"} # Long cache for the initial frame
+    )

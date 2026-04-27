@@ -22,6 +22,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
 
   const [questionToken, setQuestionToken] = useState<string | null>(null);
   const [finishToken, setFinishToken] = useState<string | null>(null);
+  const [imageReady, setImageReady] = useState(false);
 
   // Start question
   useEffect(() => {
@@ -49,12 +50,12 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
 
   // Timer logic
   useEffect(() => {
-    if (finished || timeLeft <= 0) return;
+    if (finished || timeLeft <= 0 || !imageReady) return;
     const timerId = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
     }, 1000);
     return () => clearInterval(timerId);
-  }, [finished, timeLeft]);
+  }, [finished, timeLeft, imageReady]);
 
   // Expiration logic
   useEffect(() => {
@@ -65,7 +66,16 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
 
   // Prefetching logic to make transitions snappy
   useEffect(() => {
-    if (finished || !questionToken) return;
+    if (finished) return;
+
+    // 1. Prefetch NEXT question's initial frame
+    if (currentIdx + 1 < data.questions.length && gameId) {
+      const nextImg = new Image();
+      nextImg.src = `${API_BASE}/api/public/game/${gameId}/image/${currentIdx + 1}`;
+    }
+    
+    // 2. Prefetch CURRENT question's next blur levels
+    if (!questionToken) return;
     
     let nextBlur: number | null = null;
     // We start prefetching 3 seconds before the timer hits 40, 30, 20, 10
@@ -78,7 +88,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
       const img = new Image();
       img.src = `${API_BASE}/api/image?token=${questionToken}&blur=${nextBlur}`;
     }
-  }, [timeLeft, questionToken, finished]);
+  }, [timeLeft, questionToken, finished, currentIdx, gameId, data.questions.length]);
 
   const getBlurLevel = (time: number) => {
     if (time > 40) return 20;
@@ -104,6 +114,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
       setCurrentIdx(currentIdx + 1);
       setTimeLeft(50);
       setUserGuess("");
+      setImageReady(false);
     } else {
       setFinished(true);
     }
@@ -220,6 +231,9 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
     currentImage = currentQ.image_urls[urlIndex];
   } else if (questionToken) {
     currentImage = `${API_BASE}/api/image?token=${questionToken}&blur=${blurLevel}`;
+  } else if (timeLeft > 40 && gameId) {
+    // Fallback to public endpoint for the first 10 seconds if token isn't ready
+    currentImage = `${API_BASE}/api/public/game/${gameId}/image/${currentIdx}`;
   }
 
   return (
@@ -240,6 +254,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
           <img
             src={currentImage}
             alt="Movie Scene"
+            onLoad={() => setImageReady(true)}
             style={{
               width: '100%',
               height: 'auto',
