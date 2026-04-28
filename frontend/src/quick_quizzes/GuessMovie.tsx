@@ -73,6 +73,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
       setUserGuess("");
       setImageReady(false);
       setCurrentImageBase64(null);
+      setQuestionToken(null);
     } else {
       setFinished(true);
     }
