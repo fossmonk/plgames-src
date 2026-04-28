@@ -71,10 +71,36 @@ class TokenResponse(BaseModel):
 
 @app.post("/api/play/{game_id}/start_question/{q_index}", response_model=TokenResponse)
 async def start_question(game_id: int, q_index: int):
-    start_time = int(time.time())
-    payload = f"{game_id}:{q_index}:{start_time}"
+    # Initial blur is 15
+    payload = f"{game_id}:{q_index}:15"
     signature = create_signature(payload)
     return {"token": f"{payload}:{signature}"}
+
+@app.post("/api/play/{game_id}/use_hint", response_model=TokenResponse)
+async def use_hint(game_id: int, token: str):
+    parts = token.split(":")
+    if len(parts) != 4:
+        return {"error": "Invalid token format"}
+    
+    game_id_str, q_index_str, blur_str, signature = parts
+    payload = f"{game_id_str}:{q_index_str}:{blur_str}"
+    
+    # Verify signature
+    if not hmac.compare_digest(signature, create_signature(payload)):
+        return {"error": "Invalid signature"}
+        
+    current_blur = int(blur_str)
+    if current_blur <= 4:
+        return {"token": token} # Already at lowest blur level (4)
+        
+    if current_blur == 15:
+        new_blur = 8
+    else:
+        new_blur = 4
+        
+    new_payload = f"{game_id_str}:{q_index_str}:{new_blur}"
+    new_signature = create_signature(new_payload)
+    return {"token": f"{new_payload}:{new_signature}"}
 
 @app.post("/api/play/{game_id}/finish", response_model=TokenResponse)
 async def finish_session(game_id: int):
@@ -83,15 +109,16 @@ async def finish_session(game_id: int):
     return {"token": f"{payload}:{signature}"}
 
 @app.get("/api/image")
-async def get_image(token: str, blur: int = 0, idx: int = -1, db: Session = Depends(get_db)):
+async def get_image(token: str, blur: int = -1, idx: int = -1, db: Session = Depends(get_db)):
     if not token:
         return {"error": "Missing token"}
         
     parts = token.split(":")
     if len(parts) == 4:
-        # q_index format: game_id:q_index:start_time:signature
-        game_id_str, q_index_str, start_time_str, signature = parts
-        payload = f"{game_id_str}:{q_index_str}:{start_time_str}"
+        # format: game_id:q_index:allowed_blur:signature
+        game_id_str, q_index_str, allowed_blur_str, signature = parts
+        payload = f"{game_id_str}:{q_index_str}:{allowed_blur_str}"
+        allowed_blur = int(allowed_blur_str)
         is_finished = False
     elif len(parts) == 3 and parts[1] == "finished":
         # finish format: game_id:finished:signature
@@ -99,6 +126,7 @@ async def get_image(token: str, blur: int = 0, idx: int = -1, db: Session = Depe
         payload = f"{game_id_str}:finished"
         is_finished = True
         q_index_str = str(idx) # Must be provided in query param for finish token
+        allowed_blur = 4
     else:
         return {"error": "Invalid token format"}
         
@@ -110,8 +138,6 @@ async def get_image(token: str, blur: int = 0, idx: int = -1, db: Session = Depe
     try:
         game_id = int(game_id_str)
         q_index = int(q_index_str)
-        if not is_finished:
-            start_time = int(start_time_str)
     except ValueError:
         return {"error": "Invalid token data"}
         
@@ -132,24 +158,12 @@ async def get_image(token: str, blur: int = 0, idx: int = -1, db: Session = Depe
             return {"error": "Legacy quiz, no protected image."}
         return {"error": "No image data found"}
 
-    if is_finished:
-        allowed_blur = 0
+    # Determine final blur. If no blur requested, use token's allowed blur.
+    # If blur requested, must be >= allowed_blur.
+    if blur == -1:
+        final_blur = allowed_blur
     else:
-        GRACE_PERIOD = 5 # Allow pre-fetching 5s early
-        elapsed = (time.time() - start_time) + GRACE_PERIOD
-        
-        if elapsed > 40:
-            allowed_blur = 0
-        elif elapsed > 30:
-            allowed_blur = 5
-        elif elapsed > 20:
-            allowed_blur = 10
-        elif elapsed > 10:
-            allowed_blur = 15
-        else:
-            allowed_blur = 20
-                
-    final_blur = blur if blur >= allowed_blur else allowed_blur
+        final_blur = blur if blur >= allowed_blur else allowed_blur
     
     b64_str = images_base64.get(str(final_blur))
     if not b64_str:
@@ -179,7 +193,7 @@ async def get_public_image(game_id: int, q_index: int, db: Session = Depends(get
     if not images_base64:
         return {"error": "No image data found"}
         
-    b64_str = images_base64.get("20") # Strictly blur 20
+    b64_str = images_base64.get("15") # Strictly blur 15
     if not b64_str:
         return {"error": "Initial blur level not found"}
         

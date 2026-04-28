@@ -13,17 +13,18 @@ questions_list = []
 def process_image(local_path):
     img = Image.open(local_path).convert("RGB")
     
-    blurs = [20, 15, 10, 5, 0]
+    blurs = [15, 8, 4]
     images_base64 = {}
     
     for b in blurs:
         if b > 0:
-            blurred = img.filter(ImageFilter.GaussianBlur(b))
+            blurred = img.filter(ImageFilter.BoxBlur(radius=b))
         else:
             blurred = img
         
         buffer = BytesIO()
         blurred.save(buffer, format="JPEG", quality=85)
+        
         b64_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
         
         images_base64[str(b)] = b64_str

@@ -11,9 +11,9 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
 
-  const [timeLeft, setTimeLeft] = useState(50);
   const [userGuess, setUserGuess] = useState("");
   const [wrongShake, setWrongShake] = useState(false);
+  const [hintsUsed, setHintsUsed] = useState(0);
 
   const [userAnswers, setUserAnswers] = useState<any[]>([]);
   const [showReview, setShowReview] = useState(false);
@@ -48,76 +48,48 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
     }
   }, [finished, gameId]);
 
-  // Timer logic
-  useEffect(() => {
-    if (finished || timeLeft <= 0 || !imageReady) return;
-    const timerId = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timerId);
-  }, [finished, timeLeft, imageReady]);
 
-  // Expiration logic
-  useEffect(() => {
-    if (timeLeft <= 0 && !finished) {
-      handleNextQuestion(0);
-    }
-  }, [timeLeft, finished]);
 
-  // Prefetching logic to make transitions snappy
+  // Prefetching logic
   useEffect(() => {
     if (finished) return;
 
-    // 1. Prefetch NEXT question's initial frame
+    // Prefetch NEXT question's initial frame
     if (currentIdx + 1 < data.questions.length && gameId) {
       const nextImg = new Image();
       nextImg.src = `${API_BASE}/api/public/game/${gameId}/image/${currentIdx + 1}`;
     }
-    
-    // 2. Prefetch CURRENT question's next blur levels
-    if (!questionToken) return;
-    
-    let nextBlur: number | null = null;
-    // We start prefetching 3 seconds before the timer hits 40, 30, 20, 10
-    if (timeLeft === 43) nextBlur = 15;
-    if (timeLeft === 33) nextBlur = 10;
-    if (timeLeft === 23) nextBlur = 5;
-    if (timeLeft === 13) nextBlur = 0;
+  }, [finished, currentIdx, gameId, data.questions.length]);
 
-    if (nextBlur !== null) {
-      const img = new Image();
-      img.src = `${API_BASE}/api/image?token=${questionToken}&blur=${nextBlur}`;
-    }
-  }, [timeLeft, questionToken, finished, currentIdx, gameId, data.questions.length]);
-
-  const getBlurLevel = (time: number) => {
-    if (time > 40) return 20;
-    if (time > 30) return 15;
-    if (time > 20) return 10;
-    if (time > 10) return 5;
-    return 0;
-  };
-
-  const getPossibleScore = (time: number) => {
-    if (time > 40) return 10;
-    if (time > 30) return 8;
-    if (time > 20) return 6;
-    if (time > 10) return 4;
-    return 2;
-  };
-
-  const handleNextQuestion = (pointsAchieved: number) => {
+  const handleNextQuestion = (pointsAchieved: number, actualGuess: string) => {
     const q = data.questions[currentIdx];
-    setUserAnswers([...userAnswers, { ...q, scoreAchieved: pointsAchieved }]);
+    setUserAnswers([...userAnswers, { ...q, scoreAchieved: pointsAchieved, userGuess: actualGuess }]);
 
     if (currentIdx + 1 < data.questions.length) {
       setCurrentIdx(currentIdx + 1);
-      setTimeLeft(50);
+      setHintsUsed(0);
       setUserGuess("");
       setImageReady(false);
     } else {
       setFinished(true);
     }
+  };
+
+  const handleSkip = () => {
+    handleNextQuestion(0, "");
+  };
+
+  const handleShowHint = () => {
+    if (hintsUsed >= 2 || !questionToken) return;
+    fetch(`${API_BASE}/api/play/${gameId}/use_hint?token=${questionToken}`, { method: 'POST' })
+      .then(res => res.json())
+      .then(d => {
+        if (d.token) {
+          setQuestionToken(d.token);
+          setHintsUsed(h => h + 1);
+        }
+      })
+      .catch(err => console.error("Hint error:", err));
   };
 
   const handleSubmit = (e?: React.FormEvent) => {
@@ -135,14 +107,12 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
 
     if (result.length > 0 && result[0].score! < 0.4) {
       // correct guess!
-      const points = getPossibleScore(timeLeft);
+      const points = 10 - (hintsUsed * 2);
       setScore((s) => s + points);
-      handleNextQuestion(points);
+      handleNextQuestion(points, userGuess.trim());
     } else {
-      // wrong guess
-      setWrongShake(true);
-      setTimeout(() => setWrongShake(false), 400);
-      setUserGuess("");
+      // wrong guess - now we allow it and move on
+      handleNextQuestion(0, userGuess.trim());
     }
   };
 
@@ -183,12 +153,17 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
           {showReview ? (
             <div className="results-review" style={{ textAlign: 'left' }}>
               {userAnswers.map((q, idx) => (
-                <div key={idx} className="game-card" style={{ marginBottom: '15px' }}>
-                  <h3>{q.valid_answers[0]}</h3>
-                  <img src={q.image_urls ? q.image_urls[4] : (finishToken ? `${API_BASE}/api/image?token=${finishToken}&idx=${idx}&blur=0` : '')} alt="Movie Scene" style={{ width: '100%', borderRadius: '8px', marginTop: '10px' }} />
-                  <p style={{ marginTop: '10px' }}>
-                    <strong>Score achieved:</strong> {q.scoreAchieved} / 10
-                  </p>
+                <div key={idx} className="game-card" style={{ marginBottom: '15px', borderLeft: `5px solid ${q.scoreAchieved > 0 ? '#4caf50' : '#f44336'}` }}>
+                  <img src={q.image_urls ? q.image_urls[0] : (finishToken ? `${API_BASE}/api/image?token=${finishToken}&idx=${idx}&blur=4` : '')} alt="Movie Scene" style={{ width: '100%', borderRadius: '8px', marginBottom: '10px' }} />
+                  <div style={{ padding: '0 10px' }}>
+                    <h3 style={{ margin: '5px 0' }}>Correct Answer: {q.valid_answers[0]}</h3>
+                    <h3 style={{ margin: '5px 0', color: q.scoreAchieved > 0 ? '#4caf50' : '#f44336' }}>
+                      Your Guess: {q.userGuess || 'SKIPPED'}
+                    </h3>
+                    <p style={{ margin: '5px 0', fontWeight: 'bold' }}>
+                      Score: {q.scoreAchieved} / 10
+                    </p>
+                  </div>
                 </div>
               ))}
               <button onClick={() => setShowReview(false)}>HIDE SOLUTIONS</button>
@@ -214,25 +189,17 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
 
   const currentQ = data.questions[currentIdx];
 
-  const getUrlIndex = (time: number) => {
-    if (time > 40) return 0; // blur20
-    if (time > 30) return 1; // blur15
-    if (time > 20) return 2; // blur10
-    if (time > 10) return 3; // blur5
-    return 4; // clear
-  };
-
-  const urlIndex = getUrlIndex(timeLeft);
-  const possiblePoints = getPossibleScore(timeLeft);
-  const blurLevel = getBlurLevel(timeLeft);
+  const blurLevels = [15, 8, 4];
+  const blurLevel = blurLevels[hintsUsed] !== undefined ? blurLevels[hintsUsed] : 4;
+  const possiblePoints = 10 - (hintsUsed * 2);
 
   let currentImage = "";
   if (currentQ.image_urls) {
-    currentImage = currentQ.image_urls[urlIndex];
+    currentImage = currentQ.image_urls[0]; // Logic needs to be revised for legacy if needed, but for now just 0
   } else if (questionToken) {
     currentImage = `${API_BASE}/api/image?token=${questionToken}&blur=${blurLevel}`;
-  } else if (timeLeft > 40 && gameId) {
-    // Fallback to public endpoint for the first 10 seconds if token isn't ready
+  } else {
+    // Initial public fallback
     currentImage = `${API_BASE}/api/public/game/${gameId}/image/${currentIdx}`;
   }
 
@@ -244,8 +211,8 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
         <div className="progress-indicator" style={{ fontWeight: 'bold' }}>
           Movie {currentIdx + 1} of {data.questions.length}
         </div>
-        <div style={{ fontWeight: 'bold', fontSize: '1.2rem', color: timeLeft <= 10 ? 'red' : 'inherit' }}>
-          ⏱️ {timeLeft}s
+        <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
+          Hints Used: {hintsUsed} / 2
         </div>
       </div>
 
@@ -271,8 +238,16 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
             borderRadius: '20px',
             fontWeight: 'bold'
           }}>
-            Points: {possiblePoints}
+            Score if correct: {possiblePoints}
           </div>
+        </div>
+
+        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+          {hintsUsed < 2 && (
+            <button onClick={handleShowHint} style={{ backgroundColor: '#fae34d' }}>
+              SHOW HINT (-2 pts)
+            </button>
+          )}
         </div>
 
         {currentQ.hint && (
@@ -296,6 +271,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
             }}
           />
           <button type="submit" disabled={!userGuess.trim()}>Submit Guess</button>
+          <button type="button" onClick={handleSkip} style={{ backgroundColor: '#fae34d', marginTop: '5px' }}>Skip Movie</button>
         </form>
       </div>
     </div>
