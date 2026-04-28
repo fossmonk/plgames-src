@@ -25,6 +25,7 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
   const [finished, setFinished] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { grid, gridSize, clues } = data;
 
@@ -67,12 +68,41 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
     } else {
       setCursor({ row: r, col: c });
     }
+    // Trigger mobile keyboard
+    inputRef.current?.focus();
   };
 
   const moveCursor = (dr: number, dc: number) => {
     let nr = cursor.row + dr;
     let nc = cursor.col + dc;
 
+    if (nr >= 0 && nr < gridSize && nc >= 0 && nc < gridSize && grid[nr][nc] !== null) {
+      setCursor({ row: nr, col: nc });
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (!val) return;
+    
+    const char = val.slice(-1).toUpperCase();
+    if (/^[A-Z]$/.test(char)) {
+      applyChar(char);
+    }
+    // Clear for next input
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  const applyChar = (char: string) => {
+    const newGrid = [...userGrid];
+    newGrid[cursor.row][cursor.col] = char;
+    setUserGrid(newGrid);
+
+    // Auto advance
+    const dr = direction === 'down' ? 1 : 0;
+    const dc = direction === 'across' ? 1 : 0;
+    let nr = cursor.row + dr;
+    let nc = cursor.col + dc;
     if (nr >= 0 && nr < gridSize && nc >= 0 && nc < gridSize && grid[nr][nc] !== null) {
       setCursor({ row: nr, col: nc });
     }
@@ -107,19 +137,7 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
     if (e.key === ' ') setDirection(prev => (prev === 'across' ? 'down' : 'across'));
 
     if (/^[a-zA-Z]$/.test(e.key)) {
-      const char = e.key.toUpperCase();
-      const newGrid = [...userGrid];
-      newGrid[cursor.row][cursor.col] = char;
-      setUserGrid(newGrid);
-
-      // Auto advance
-      const dr = direction === 'down' ? 1 : 0;
-      const dc = direction === 'across' ? 1 : 0;
-      let nr = cursor.row + dr;
-      let nc = cursor.col + dc;
-      if (nr >= 0 && nr < gridSize && nc >= 0 && nc < gridSize && grid[nr][nc] !== null) {
-        setCursor({ row: nr, col: nc });
-      }
+      applyChar(e.key.toUpperCase());
     }
   };
 
@@ -161,6 +179,23 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
 
   return (
     <div className="container" onKeyDown={handleKeyDown} tabIndex={0} style={{ outline: 'none' }}>
+      {/* Hidden input to trigger mobile keyboard */}
+      <input
+        ref={inputRef}
+        type="text"
+        autoCapitalize="characters"
+        autoComplete="off"
+        spellCheck="false"
+        onChange={handleInputChange}
+        style={{
+          position: 'absolute',
+          opacity: 0,
+          pointerEvents: 'none',
+          top: '50%',
+          left: '50%',
+          zIndex: -1
+        }}
+      />
       <h1 className="brand-name" style={{ marginBottom: '20px' }}>{title}</h1>
 
       <div ref={sheetRef} className="crossword-layout" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
