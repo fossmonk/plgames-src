@@ -14,13 +14,24 @@ const SUBTYPE_DESC_MAP: Record<string, string> = {
   guess_movie: `
   Guess the movie by looking at the blurred scene from it before the time runs out. As time passes,
   the image gets clearer, and you get less points. If you answer quickly, you get more points. All the best!
+  `,
+  minixword: `
+  Think you’re a crossword whiz? 🧠 Try out our Mini XWord puzzle!
+
+  Fill in the blanks by figuring out the words that fit the clues. 
+  The words can be horizontally (across) or vertically (down). 
+  Once you fill in all the words, you’ll see your score.
+  Don’t worry if you don’t get it right the first time. You can always try again!
+
+  All words are transliterated malayalam words.
   `
 };
 
 const SUBTYPE_TO_NAME_MAP: Record<string, string> = {
-  connections: "CONNECTIONS",
+  connections: "Connections",
   mcq: "The One With Multiple Options",
   guess_movie: "Guess The Movie From The Scene",
+  minixword: "Mini XWord"
 }
 
 export const SubtypeDescriptions = (subtype: string) => {

@@ -1,7 +1,9 @@
 import { Connections } from './puzzles/Connections';
+import { MiniXWord } from './puzzles/MiniXWord';
 
 const SUBTYPE_MAP: Record<string, any> = {
   connections: Connections,
+  minixword: MiniXWord,
   // wordle: Wordle,
 };
 

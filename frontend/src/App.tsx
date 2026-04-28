@@ -5,7 +5,7 @@ import { QuickQuizComponent } from './QuickQuiz.tsx'
 import { PuzzleComponent } from './Puzzle.tsx'
 import { LiveQuizComponent } from './LiveQuiz.tsx'
 import Layout from './components/Layout.tsx';
-import { SubtypeDescriptions, SubtypeNames } from './puzzles/SubtypeDescriptions.tsx';
+import { SubtypeDescriptions, SubtypeNames } from './SubtypeDescriptions.tsx';
 
 const API_BASE = import.meta.env.VITE_API_URL;
 const CRYPTO_KEY_STR = import.meta.env.VITE_PL_CRYPTO_KEY;

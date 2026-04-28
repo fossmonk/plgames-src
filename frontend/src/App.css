@@ -3,7 +3,7 @@
   --color-pink: #ff008a;
   --color-yellow: #fae34d;
   --color-text: #0c0d0e;
-  
+
   /* Dark Mode Variables */
   --bg-color: #ffffff;
   --text-color: #0c0d0e;
@@ -29,12 +29,20 @@ body {
   background-color: var(--bg-color);
 }
 
-p, h1, h2, h3, span, label {
+p,
+h1,
+h2,
+h3,
+span,
+label {
   color: var(--text-color);
   font-family: 'Arial-Black', 'Helvetica Bold', sans-serif;
 }
 
-h1, h2, h3, .brand-name {
+h1,
+h2,
+h3,
+.brand-name {
   line-height: 1.3;
 }
 
@@ -53,7 +61,9 @@ p {
   box-sizing: border-box;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   width: 100%;
   min-height: 100vh;
   overflow-x: hidden;
@@ -79,7 +89,8 @@ html, body, #root {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: var(--color-pink); /* Matches your brand color */
+  background: var(--color-pink);
+  /* Matches your brand color */
 }
 
 .banner-content {
@@ -114,7 +125,8 @@ html, body, #root {
   text-transform: uppercase;
   margin: 0;
   line-height: 1.3;
-  text-align: center; /* Ensures text stays centered if it wraps */
+  text-align: center;
+  /* Ensures text stays centered if it wraps */
 }
 
 .search-toggle {
@@ -162,7 +174,8 @@ html, body, #root {
 }
 
 /* Content Area */
-.container, .main-content {
+.container,
+.main-content {
   flex: 1;
   width: 100%;
   max-width: 900px;
@@ -170,7 +183,11 @@ html, body, #root {
   padding: 20px;
 }
 
-.hero { text-align: center; padding: 40px 0; color: var(--color-text); }
+.hero {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--color-text);
+}
 
 .game-grid {
   display: grid;
@@ -194,7 +211,8 @@ html, body, #root {
 }
 
 input {
-  caret-color: transparent; /* Makes the blinking line invisible */
+  caret-color: transparent;
+  /* Makes the blinking line invisible */
 }
 
 /* Buttons and Inputs */
@@ -211,7 +229,10 @@ button {
   width: 100%;
 }
 
-button:hover { background-color: var(--color-yellow); color: var(--color-text); }
+button:hover {
+  background-color: var(--color-yellow);
+  color: var(--color-text);
+}
 
 .submit-btn:disabled {
   background-color: #ccc;
@@ -246,7 +267,8 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 /* Highlight state when selected */
 .radio-option:has(input:checked) {
   background-color: var(--color-yellow);
-  border-color: #000; /* Darker border to match the hand-drawn style */
+  border-color: #000;
+  /* Darker border to match the hand-drawn style */
 }
 
 .radio-option:hover {
@@ -260,7 +282,7 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   max-height: 400px;
   margin: 15px auto;
   display: block;
-  object-fit: contain; 
+  object-fit: contain;
 }
 
 .game-over-sheet {
@@ -270,31 +292,32 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   /* border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; */
   padding: 40px;
   text-align: center;
-  box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
+  box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.1);
   margin-top: 30px;
   line-height: 1.5;
-  
+
   /* Prevent mobile browser text-fading behavior */
   -webkit-text-size-adjust: 100%;
-  color: #1a1a1a !important; 
+  color: #1a1a1a !important;
 }
 
 .score-text {
   /* Added 'Comic Neue' to the stack for better mobile consistency */
   font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
   font-size: 3rem;
-  font-weight: 800 !important; /* Heavier weight prevents "fading" */
+  font-weight: 800 !important;
+  /* Heavier weight prevents "fading" */
   color: var(--color-pink) !important;
   margin: 10px 0;
   transform: rotate(-2deg);
-  
+
   /* Adds a subtle stamp effect for higher contrast */
-  text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.2);
+  text-shadow: 0.5px 0.5px 0px rgba(0, 0, 0, 0.2);
 }
 
 /* Ensure headings inside the sheet stay dark */
 .game-over-sheet h1,
-.game-over-sheet h2, 
+.game-over-sheet h2,
 .game-over-sheet h3 {
   color: #1a1a1a !important;
 }
@@ -306,8 +329,15 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px) rotate(10deg); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(10deg);
+  }
 }
 
 /* Footer */
@@ -325,7 +355,7 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   background: white;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
@@ -362,7 +392,7 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   justify-content: center;
   transition: transform 0.2s;
   /* Override global button styles */
-  margin-top: 0; 
+  margin-top: 0;
   padding: 0;
 }
 
@@ -393,7 +423,8 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 }
 
 .results-list li:hover {
-  background-color: #fff0f5; /* Light Pink hover */
+  background-color: #fff0f5;
+  /* Light Pink hover */
   color: var(--color-pink) !important;
   font-weight: bold;
 }
@@ -415,18 +446,27 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 
 /* The Sprite Box */
 .mascot-animation {
-  width: 217px;  /* Width of ONE frame */
-  height: 274px; /* Height of ONE frame */
+  width: 217px;
+  /* Width of ONE frame */
+  height: 274px;
+  /* Height of ONE frame */
   background-image: url('/anims/wearingthelungi.png');
   background-repeat: no-repeat;
-  
+
   /* The Animation */
   animation: play-animation 1.5s steps(6) infinite;
 }
 
 @keyframes play-animation {
-  from { background-position: 0px; }
-  to { background-position: -1301px; } /* 6 frames * 100px width */
+  from {
+    background-position: 0px;
+  }
+
+  to {
+    background-position: -1301px;
+  }
+
+  /* 6 frames * 100px width */
 }
 
 /* Connections */
@@ -439,12 +479,24 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   box-sizing: border-box;
 }
 
-.shake { animation: shake 0.4s; }
+.shake {
+  animation: shake 0.4s;
+}
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  75% { transform: translateX(10px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-10px);
+  }
+
+  75% {
+    transform: translateX(10px);
+  }
 }
 
 .solved-group {
@@ -462,19 +514,24 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   width: 100%;
-  max-width: 500px; /* Perfect for desktop, fluid for mobile */
-  margin-bottom: 20px; /* Add space so controls don't overlap */
+  max-width: 500px;
+  /* Perfect for desktop, fluid for mobile */
+  margin-bottom: 20px;
+  /* Add space so controls don't overlap */
 }
 
 .tile {
   width: 100%;
-  aspect-ratio: 1 / 1; /* Ensures perfect squares */
+  aspect-ratio: 1 / 1;
+  /* Ensures perfect squares */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(0.7rem, 3vw, 1rem); /* Dynamic text sizing */
+  font-size: clamp(0.7rem, 3vw, 1rem);
+  /* Dynamic text sizing */
   padding: 2px;
-  box-sizing: border-box; /* Crucial: includes padding in total width */
+  box-sizing: border-box;
+  /* Crucial: includes padding in total width */
   overflow: hidden;
 }
 
@@ -487,7 +544,8 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 
 .tile.active {
   background: #5a594e;
-  color: #fff; /* White text when active */
+  color: #fff;
+  /* White text when active */
 }
 
 /* Submit Animation */
@@ -496,9 +554,20 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 }
 
 @keyframes pulse-out {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.8; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Control Buttons */
@@ -509,7 +578,8 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   width: 100%;
   max-width: 500px;
   margin-top: 10px;
-  flex-wrap: wrap; /* Allows wrapping on tiny screens */
+  flex-wrap: wrap;
+  /* Allows wrapping on tiny screens */
 }
 
 .controls button {
@@ -517,11 +587,13 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   cursor: pointer;
   border: 2px solid #333;
   background: white;
-  color: #000; /* Force black text */
+  color: #000;
+  /* Force black text */
   font-weight: bold;
   font-size: 0.85rem;
   border-radius: 8px;
-  opacity: 1; /* Ensure not transparent */
+  opacity: 1;
+  /* Ensure not transparent */
   flex: 1 1 auto;
   max-width: 120px;
 }
@@ -544,7 +616,8 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 }
 
 .capture-branding {
-  display: none; /* Hidden on the actual screen */
+  display: none;
+  /* Hidden on the actual screen */
   text-align: center;
   padding: 10px 0;
   /* Add a pink separator */
@@ -560,7 +633,8 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
 }
 
 .capture-link {
-  color: var(--color-pink); /* Pink link color */
+  color: var(--color-pink);
+  /* Pink link color */
   font-weight: bold;
   font-size: 1rem;
   margin-top: 5px;
@@ -576,14 +650,26 @@ button:hover { background-color: var(--color-yellow); color: var(--color-text); 
   display: none !important;
 }
 
-.wrong-border { border: 2px solid red; padding: 5px; border-radius: 4px; }
-.right-border { border: 2px solid green; padding: 5px; border-radius: 4px; }
+.wrong-border {
+  border: 2px solid red;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.right-border {
+  border: 2px solid green;
+  padding: 5px;
+  border-radius: 4px;
+}
 
 /* Force elements to stay light-mode colors */
-.force-light, 
-.force-light h3, 
-.force-light p, 
-.game-card h3 {
-  color: #0c0d0e !important; /* Forces black text */
+.force-light,
+.force-light h3,
+.force-light p,
+.game-card h3,
+.clue-display h3,
+.clue-display h4 {
+  color: #0c0d0e !important;
+  /* Forces black text */
   background-color: transparent !important;
 }
