@@ -13,7 +13,7 @@ const CRYPTO_KEY_STR = import.meta.env.VITE_PL_CRYPTO_KEY;
 // AES-GCM Decryption Utility
 const decryptData = async (encryptedBase64: string) => {
   try {
-    const keyStr = CRYPTO_KEY_STR || "pinklungi_default_crypto_key_32_bytes_long_!!";
+    const keyStr = CRYPTO_KEY_STR;
     const keyBuffer = new TextEncoder().encode(keyStr);
     const hash = await crypto.subtle.digest("SHA-256", keyBuffer);
     const cryptoKey = await crypto.subtle.importKey("raw", hash, "AES-GCM", true, ["decrypt"]);
