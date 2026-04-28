@@ -275,7 +275,7 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
                   return cl.col === cursor.col && cursor.row >= cl.row && cursor.row < cl.row + cl.answer.length;
                 }
               });
-              return currentClue ? `${currentClue.text} [${currentClue.answer.length}]` : "Select a cell to see clue";
+              return currentClue ? `${currentClue.number}. ${currentClue.text} [${currentClue.answer.length}]` : "Select a cell to see clue";
             })()}
           </h4>
         </div>
@@ -308,7 +308,7 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
               onClick={() => { setCursor({ row: cl.row, col: cl.col }); setDirection('across'); }}
               style={{ padding: '8px 0', cursor: 'pointer', borderBottom: '1px solid #eee', opacity: (direction === 'across' && cursor.row === cl.row) ? 1 : 0.7 }}
             >
-              <strong>{cl.number}.</strong> {cl.text}
+              <strong>{cl.number}.</strong> {cl.text} [{cl.answer.length}]
             </div>
           ))}
         </div>
@@ -320,7 +320,7 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
               onClick={() => { setCursor({ row: cl.row, col: cl.col }); setDirection('down'); }}
               style={{ padding: '8px 0', cursor: 'pointer', borderBottom: '1px solid #eee', opacity: (direction === 'down' && cursor.col === cl.col) ? 1 : 0.7 }}
             >
-              <strong>{cl.number}.</strong> {cl.text}
+              <strong>{cl.number}.</strong> {cl.text} [{cl.answer.length}]
             </div>
           ))}
         </div>
