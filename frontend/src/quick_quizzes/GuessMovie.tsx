@@ -20,48 +20,16 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
   const [meme, setMeme] = useState<string>("");
   const sheetRef = useRef<HTMLDivElement>(null);
 
-  const [questionToken, setQuestionToken] = useState<string | null>(null);
-  const [finishToken, setFinishToken] = useState<string | null>(null);
   const [imageReady, setImageReady] = useState(false);
-  const [currentImageBase64, setCurrentImageBase64] = useState<string | null>(null);
 
-  // Start question
-  useEffect(() => {
-    if (!gameId || finished) return;
-    fetch(`${API_BASE}/api/play/${gameId}/start_question/${currentIdx}`, { method: 'POST' })
-      .then(res => res.json())
-      .then(d => {
-        if (d.token) setQuestionToken(d.token);
-        if (d.image_data) setCurrentImageBase64(d.image_data);
-      })
-      .catch(err => console.error("Start question error:", err));
-  }, [gameId, currentIdx, finished]);
-
-  // Finish game
+  // Finish game logging
   useEffect(() => {
     if (finished && gameId) {
-      setMeme(getGameOverMeme(score, data.questions.length * 10)); // max score is 10 per q
+      setMeme(getGameOverMeme(score, data.questions.length * 10));
       fetch(`${API_BASE}/api/play/${gameId}/finish`, { method: 'POST' })
-        .then(res => res.json())
-        .then(d => {
-          if (d.token) setFinishToken(d.token);
-        })
         .catch(err => console.error("Finish error:", err));
     }
-  }, [finished, gameId]);
-
-
-
-  // Prefetching logic
-  useEffect(() => {
-    if (finished) return;
-
-    // Prefetch NEXT question's initial frame
-    if (currentIdx + 1 < data.questions.length && gameId) {
-      const nextImg = new Image();
-      nextImg.src = `${API_BASE}/api/public/game/${gameId}/image/${currentIdx + 1}`;
-    }
-  }, [finished, currentIdx, gameId, data.questions.length]);
+  }, [finished, gameId, data.questions.length, score]);
 
   const handleNextQuestion = (pointsAchieved: number, actualGuess: string) => {
     const q = data.questions[currentIdx];
@@ -72,8 +40,6 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
       setHintsUsed(0);
       setUserGuess("");
       setImageReady(false);
-      setCurrentImageBase64(null);
-      setQuestionToken(null);
     } else {
       setFinished(true);
     }
@@ -84,19 +50,9 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
   };
 
   const handleShowHint = () => {
-    if (hintsUsed >= 2 || !questionToken) return;
-    fetch(`${API_BASE}/api/play/${gameId}/use_hint?token=${questionToken}`, { method: 'POST' })
-      .then(res => res.json())
-      .then(d => {
-        if (d.token) {
-          setQuestionToken(d.token);
-          setHintsUsed(h => h + 1);
-        }
-        if (d.image_data) {
-          setCurrentImageBase64(d.image_data);
-        }
-      })
-      .catch(err => console.error("Hint error:", err));
+    if (hintsUsed < 2) {
+      setHintsUsed(h => h + 1);
+    }
   };
 
   const handleSubmit = (e?: React.FormEvent) => {
@@ -104,21 +60,18 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
     if (!userGuess.trim()) return;
 
     const q = data.questions[currentIdx];
-    // fuse.js configuration
     const fuse = new Fuse(q.valid_answers, {
       includeScore: true,
-      threshold: 0.3, // 0.0 is exact match, 1.0 is anything goes
+      threshold: 0.3,
     });
 
     const result = fuse.search(userGuess.trim());
 
     if (result.length > 0 && result[0].score! < 0.4) {
-      // correct guess!
       const points = 10 - (hintsUsed * 2);
       setScore((s) => s + points);
       handleNextQuestion(points, userGuess.trim());
     } else {
-      // wrong guess - now we allow it and move on
       handleNextQuestion(0, userGuess.trim());
     }
   };
@@ -161,7 +114,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
             <div className="results-review" style={{ textAlign: 'left' }}>
               {userAnswers.map((q, idx) => (
                 <div key={idx} className="game-card" style={{ marginBottom: '15px', borderLeft: `5px solid ${q.scoreAchieved > 0 ? '#4caf50' : '#f44336'}` }}>
-                  <img src={q.image_urls ? q.image_urls[0] : (finishToken ? `${API_BASE}/api/image?token=${finishToken}&idx=${idx}&blur=4` : '')} alt="Movie Scene" style={{ width: '100%', borderRadius: '8px', marginBottom: '10px' }} />
+                  <img src={`data:image/jpeg;base64,${q.images_base64["4"]}`} alt="Movie Scene" style={{ width: '100%', borderRadius: '8px', marginBottom: '10px' }} />
                   <div style={{ padding: '0 10px' }}>
                     <h3 style={{ margin: '5px 0' }}>Correct Answer: {q.valid_answers[0]}</h3>
                     <h3 style={{ margin: '5px 0', color: q.scoreAchieved > 0 ? '#4caf50' : '#f44336' }}>
@@ -195,19 +148,13 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
   }
 
   const currentQ = data.questions[currentIdx];
-
-  const blurLevels = [15, 8, 4];
-  const blurLevel = blurLevels[hintsUsed] !== undefined ? blurLevels[hintsUsed] : 4;
   const possiblePoints = 10 - (hintsUsed * 2);
 
   let currentImage = "";
-  if (currentQ.image_urls) {
-    currentImage = currentQ.image_urls[0];
-  } else if (currentImageBase64) {
-    currentImage = `data:image/jpeg;base64,${currentImageBase64}`;
-  } else {
-    // Initial public fallback before token/bundled data arrives
-    currentImage = `${API_BASE}/api/public/game/${gameId}/image/${currentIdx}`;
+  if (currentQ.images_base64) {
+    const blurMap: any = { 0: "15", 1: "8", 2: "4" };
+    const blurKey = blurMap[hintsUsed] || "4";
+    currentImage = `data:image/jpeg;base64,${currentQ.images_base64[blurKey]}`;
   }
 
   return (

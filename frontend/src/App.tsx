@@ -8,6 +8,32 @@ import Layout from './components/Layout.tsx';
 import { SubtypeDescriptions, SubtypeNames } from './puzzles/SubtypeDescriptions.tsx';
 
 const API_BASE = import.meta.env.VITE_API_URL;
+const CRYPTO_KEY_STR = import.meta.env.VITE_PL_CRYPTO_KEY;
+
+// AES-GCM Decryption Utility
+const decryptData = async (encryptedBase64: string) => {
+  try {
+    const keyStr = CRYPTO_KEY_STR || "pinklungi_default_crypto_key_32_bytes_long_!!";
+    const keyBuffer = new TextEncoder().encode(keyStr);
+    const hash = await crypto.subtle.digest("SHA-256", keyBuffer);
+    const cryptoKey = await crypto.subtle.importKey("raw", hash, "AES-GCM", true, ["decrypt"]);
+
+    const combined = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+    const iv = combined.slice(0, 12);
+    const ciphertext = combined.slice(12);
+
+    const decrypted = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: iv },
+      cryptoKey,
+      ciphertext
+    );
+
+    return JSON.parse(new TextDecoder().decode(decrypted));
+  } catch (err) {
+    console.error("Decryption failed:", err);
+    return null;
+  }
+};
 
 interface Game { id: number; title: string; type: string; desc: string; subtype: string }
 
@@ -30,13 +56,14 @@ function GameRunner() {
         if (!res.ok) throw new Error();
         return res.json();
       })
-      .then(data => {
-        // Decode the obfuscated data
+      .then(async (data) => {
+        // Decrypt the AES-GCM data
         if (typeof data.data === 'string') {
-          try {
-            data.data = JSON.parse(atob(data.data));
-          } catch (e) {
-            console.error("Failed to decode game data", e);
+          const decrypted = await decryptData(data.data);
+          if (decrypted) {
+            data.data = decrypted;
+          } else {
+            throw new Error("Decryption failed");
           }
         }
         setGame(data);
