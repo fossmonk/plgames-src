@@ -69,15 +69,27 @@ def create_signature(payload: str) -> str:
 class TokenResponse(BaseModel):
     token: str
 
-@app.post("/api/play/{game_id}/start_question/{q_index}", response_model=TokenResponse)
-async def start_question(game_id: int, q_index: int):
+@app.post("/api/play/{game_id}/start_question/{q_index}")
+async def start_question(game_id: int, q_index: int, db: Session = Depends(get_db)):
     # Initial blur is 15
     payload = f"{game_id}:{q_index}:15"
     signature = create_signature(payload)
-    return {"token": f"{payload}:{signature}"}
+    token = f"{payload}:{signature}"
+    
+    # Fetch initial image for bundling
+    game = db.query(models.Game).filter(models.Game.id == game_id).first()
+    if not game or not game.content:
+        return {"error": "Game not found"}
+    
+    img_data = game.content["questions"][q_index].get("images_base64", {}).get("15")
+    
+    return {
+        "token": token,
+        "image_data": img_data
+    }
 
-@app.post("/api/play/{game_id}/use_hint", response_model=TokenResponse)
-async def use_hint(game_id: int, token: str):
+@app.post("/api/play/{game_id}/use_hint")
+async def use_hint(game_id: int, token: str, db: Session = Depends(get_db)):
     parts = token.split(":")
     if len(parts) != 4:
         return {"error": "Invalid token format"}
@@ -91,16 +103,28 @@ async def use_hint(game_id: int, token: str):
         
     current_blur = int(blur_str)
     if current_blur <= 4:
-        return {"token": token} # Already at lowest blur level (4)
-        
-    if current_blur == 15:
+        new_blur = 4
+    elif current_blur == 15:
         new_blur = 8
     else:
         new_blur = 4
         
     new_payload = f"{game_id_str}:{q_index_str}:{new_blur}"
     new_signature = create_signature(new_payload)
-    return {"token": f"{new_payload}:{new_signature}"}
+    new_token = f"{new_payload}:{new_signature}"
+
+    # Fetch new image for bundling
+    game = db.query(models.Game).filter(models.Game.id == game_id).first()
+    if not game or not game.content:
+        return {"error": "Game not found"}
+    
+    q_index = int(q_index_str)
+    img_data = game.content["questions"][q_index].get("images_base64", {}).get(str(new_blur))
+
+    return {
+        "token": new_token,
+        "image_data": img_data
+    }
 
 @app.post("/api/play/{game_id}/finish", response_model=TokenResponse)
 async def finish_session(game_id: int):

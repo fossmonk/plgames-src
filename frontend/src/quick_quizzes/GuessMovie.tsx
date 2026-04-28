@@ -23,6 +23,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
   const [questionToken, setQuestionToken] = useState<string | null>(null);
   const [finishToken, setFinishToken] = useState<string | null>(null);
   const [imageReady, setImageReady] = useState(false);
+  const [currentImageBase64, setCurrentImageBase64] = useState<string | null>(null);
 
   // Start question
   useEffect(() => {
@@ -31,6 +32,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
       .then(res => res.json())
       .then(d => {
         if (d.token) setQuestionToken(d.token);
+        if (d.image_data) setCurrentImageBase64(d.image_data);
       })
       .catch(err => console.error("Start question error:", err));
   }, [gameId, currentIdx, finished]);
@@ -70,6 +72,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
       setHintsUsed(0);
       setUserGuess("");
       setImageReady(false);
+      setCurrentImageBase64(null);
     } else {
       setFinished(true);
     }
@@ -87,6 +90,9 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
         if (d.token) {
           setQuestionToken(d.token);
           setHintsUsed(h => h + 1);
+        }
+        if (d.image_data) {
+          setCurrentImageBase64(d.image_data);
         }
       })
       .catch(err => console.error("Hint error:", err));
@@ -195,11 +201,11 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
 
   let currentImage = "";
   if (currentQ.image_urls) {
-    currentImage = currentQ.image_urls[0]; // Logic needs to be revised for legacy if needed, but for now just 0
-  } else if (questionToken) {
-    currentImage = `${API_BASE}/api/image?token=${questionToken}&blur=${blurLevel}`;
+    currentImage = currentQ.image_urls[0];
+  } else if (currentImageBase64) {
+    currentImage = `data:image/jpeg;base64,${currentImageBase64}`;
   } else {
-    // Initial public fallback
+    // Initial public fallback before token/bundled data arrives
     currentImage = `${API_BASE}/api/public/game/${gameId}/image/${currentIdx}`;
   }
 
@@ -244,7 +250,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
 
         <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
           {hintsUsed < 2 && (
-            <button onClick={handleShowHint} style={{ backgroundColor: '#fae34d' }}>
+            <button onClick={handleShowHint} style={{ backgroundColor: '#ff008a' }}>
               SHOW HINT (-2 pts)
             </button>
           )}
@@ -271,7 +277,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
             }}
           />
           <button type="submit" disabled={!userGuess.trim()}>Submit Guess</button>
-          <button type="button" onClick={handleSkip} style={{ backgroundColor: '#fae34d', marginTop: '5px' }}>Skip Movie</button>
+          <button type="button" onClick={handleSkip} style={{ backgroundColor: '#ff008a', marginTop: '5px' }}>Skip Movie</button>
         </form>
       </div>
     </div>
