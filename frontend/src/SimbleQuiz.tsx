@@ -1,9 +1,11 @@
 import { Mcq } from './simble_quizzes/Mcq';
 import { GuessMovie } from './simble_quizzes/GuessMovie';
+import { DialogGuess } from './simble_quizzes/DialogGuess';
 
 const SUBTYPE_MAP: Record<string, any> = {
   mcq: Mcq,
   guess_movie: GuessMovie,
+  dialog_guess: DialogGuess,
 };
 
 export const SimbleQuizComponent = ({ game }: { game: any }) => {

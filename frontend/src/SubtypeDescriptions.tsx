@@ -24,6 +24,10 @@ const SUBTYPE_DESC_MAP: Record<string, string> = {
   Don’t worry if you don’t get it right the first time. You can always try again!
 
   All words are transliterated malayalam words.
+  `,
+  dialog_guess: `
+  Listen carefully! 🎧 We'll play a famous movie dialogue, and you have to guess the movie.
+  Type the name in the box and see if you can identify correctly.
   `
 };
 
@@ -31,7 +35,8 @@ const SUBTYPE_TO_NAME_MAP: Record<string, string> = {
   connections: "Connections",
   mcq: "The One With Multiple Options",
   guess_movie: "Guess The Movie From The Scene",
-  minixword: "Mini XWord"
+  minixword: "Mini XWord",
+  dialog_guess: "Guess The Movie From Dialog"
 }
 
 export const SubtypeDescriptions = (subtype: string) => {
