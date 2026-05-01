@@ -89,16 +89,16 @@ export const Connections = ({ data, title }: { data: any; title: string }) => {
 
   if (showResults || isLost) {
     return (
-      <div className="container" style={{ textAlign: 'center' }}>
+      <div className="container text-center">
         <h1>{isWon ? "You Won!" : "Game Over"}</h1>
 
         {guessHistory.length > 0 && (
-          <div style={{ margin: '20px 0', fontSize: '1.5rem', whiteSpace: 'pre-line', lineHeight: '1.2' }}>
+          <div className="mb-20" style={{ fontSize: '1.5rem', whiteSpace: 'pre-line', lineHeight: '1.2' }}>
             {getEmojiGrid(guessHistory)}
           </div>
         )}
         
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div className="flex-center gap-10">
           <button onClick={() => window.location.reload()}>PLAY AGAIN</button>
           {isWon && (
             <button onClick={() => handleShare(title)}>SHARE RESULT</button>
@@ -117,7 +117,7 @@ export const Connections = ({ data, title }: { data: any; title: string }) => {
         <div className="solved-area">
           {solvedGroups.map((g, i) => (
             <div key={i} className="solved-group" style={{ backgroundColor: g.color }}>
-              <strong style={{ display: 'block', marginBottom: '5px' }}>{g.category}</strong>
+              <strong className="block mb-10">{g.category}</strong>
               <span style={{ fontSize: '0.9rem', color: '#333' }}>{g.items.join(', ')}</span>
             </div>
           ))}
@@ -125,8 +125,8 @@ export const Connections = ({ data, title }: { data: any; title: string }) => {
 
         {/* Victory Lap Button appears only when the 4th group is solved */}
         {isWon && (
-          <div style={{ textAlign: 'center', margin: '15px 0' }}>
-            <button onClick={() => setShowResults(true)} style={{ padding: '10px 20px', fontSize: '1rem' }}>
+          <div className="text-center mb-10">
+            <button onClick={() => setShowResults(true)} style={{ padding: '10px 20px', fontSize: '1rem', width: 'auto' }}>
               SEE FINAL RESULTS
             </button>
           </div>

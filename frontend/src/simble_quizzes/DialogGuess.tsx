@@ -109,13 +109,13 @@ export function DialogGuess({ data, title, gameId }: { data: any; title: string;
           <div className="score-text">{score} / {maxScore}</div>
 
           {showReview ? (
-            <div className="results-review" style={{ textAlign: 'left' }}>
+            <div className="text-left">
               {userAnswers.map((q, idx) => (
-                <div key={idx} className="game-card" style={{ marginBottom: '15px', borderLeft: `5px solid ${q.scoreAchieved > 0 ? '#4caf50' : '#f44336'}` }}>
-                  <div style={{ padding: '10px' }}>
-                    <h3 style={{ margin: '5px 0' }}>Question {idx + 1}</h3>
-                    <h4 style={{ margin: '5px 0' }}>Correct Answer: {q.valid_answers[0]}</h4>
-                    <h4 style={{ margin: '5px 0', color: q.scoreAchieved > 0 ? '#4caf50' : '#f44336' }}>
+                <div key={idx} className="game-card review-item" style={{ borderLeftColor: q.scoreAchieved > 0 ? '#4caf50' : '#f44336' }}>
+                  <div className="solution-box">
+                    <h3 className="mb-10">Question {idx + 1}</h3>
+                    <h4 className="mb-10">Correct Answer: {q.valid_answers[0]}</h4>
+                    <h4 style={{ color: q.scoreAchieved > 0 ? '#4caf50' : '#f44336' }}>
                       Your Guess: {q.userGuess || 'SKIPPED'}
                     </h4>
                   </div>
@@ -125,12 +125,12 @@ export function DialogGuess({ data, title, gameId }: { data: any; title: string;
             </div>
           ) : (
             <>
-              <div className="capture-branding">
-                <img src={`/logo.png`} alt="Logo" style={{ width: '50px', height: '50px' }} />
+              <div className="capture-branding flex-col flex-center">
+                <img src={`/logo.png`} alt="Logo" className="brand-logo-ui" />
                 <h2 className="brand-result">PINKLUNGI GAMES</h2>
                 <h5 className="capture-link">pinklungigames.com</h5>
               </div>
-              <div className="no-capture" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div className="no-capture flex-col gap-10">
                 <button onClick={() => setShowReview(true)}>VIEW SOLUTIONS</button>
                 <button onClick={handleShareImage}>SHARE RESULT</button>
                 <button onClick={() => window.location.reload()}>PLAY AGAIN</button>
@@ -146,18 +146,18 @@ export function DialogGuess({ data, title, gameId }: { data: any; title: string;
 
   return (
     <div className="container">
-      <h1 className="brand-name" style={{ marginBottom: '20px' }}>{title}</h1>
+      <h1 className="brand-name mb-20">{title}</h1>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <div className="progress-indicator" style={{ fontWeight: 'bold', fontFamily: 'Space Grotesk, sans-serif' }}>
+      <div className="flex-between mb-20">
+        <div className="progress-indicator bold" style={{ fontSize: '1.2rem', fontFamily: 'Space Grotesk, sans-serif' }}>
           Dialog {currentIdx + 1} of {data.questions.length}
         </div>
-        <div style={{ fontWeight: 'bold', fontSize: '1.2rem', fontFamily: 'Space Grotesk, sans-serif' }}>
+        <div className="bold" style={{ fontSize: '1.2rem', fontFamily: 'Space Grotesk, sans-serif' }}>
           Score: {score}
         </div>
       </div>
 
-      <div className="game-card" style={{ textAlign: 'center', padding: '40px 20px' }}>
+      <div className="game-card text-center audio-player-card">
         <audio
           ref={audioRef}
           src={`data:audio/mpeg;base64,${currentQ.audio_base64}`}
@@ -166,24 +166,10 @@ export function DialogGuess({ data, title, gameId }: { data: any; title: string;
         />
 
         {/* Spiced up Play Button */}
-        <div style={{ marginBottom: '40px', position: 'relative', display: 'inline-block' }}>
+        <div className="play-button-outer">
           <button
             onClick={togglePlay}
-            style={{
-              width: '120px',
-              height: '120px',
-              borderRadius: '60px',
-              background: isPlaying ? 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)' : 'linear-gradient(135deg, #ff008a 0%, #c2185b 100%)',
-              border: 'none',
-              boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
-              cursor: 'pointer',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-              transform: isPlaying ? 'scale(1.1)' : 'scale(1)',
-              padding: 0
-            }}
+            className={`play-button ${isPlaying ? 'playing' : 'paused'}`}
           >
             {isPlaying ? (
               <svg viewBox="0 0 24 24" width="50" height="50" fill="white">
@@ -199,21 +185,9 @@ export function DialogGuess({ data, title, gameId }: { data: any; title: string;
 
           {/* Sound Waves Animation when playing */}
           {isPlaying && (
-            <div className="audio-visualizer" style={{
-              position: 'absolute',
-              bottom: '-30px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              display: 'flex',
-              gap: '4px',
-              alignItems: 'flex-end',
-              height: '20px'
-            }}>
+            <div className="visualizer-container">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="sound-bar" style={{
-                  width: '4px',
-                  backgroundColor: '#ff008a',
-                  borderRadius: '2px',
                   animation: `soundWave 0.5s ease-in-out infinite alternate ${i * 0.1}s`
                 }} />
               ))}
@@ -221,36 +195,27 @@ export function DialogGuess({ data, title, gameId }: { data: any; title: string;
           )}
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '400px', margin: '0 auto' }}>
+        <form onSubmit={handleSubmit} className="flex-col gap-10" style={{ maxWidth: '400px', margin: '0 auto' }}>
           <input
             type="text"
             value={userGuess}
             onChange={(e) => setUserGuess(e.target.value)}
             placeholder="Guess the movie..."
+            className="w-full text-center"
             style={{
               padding: '15px',
               fontSize: '1.2rem',
               borderRadius: '12px',
               border: '3px solid #eee',
-              width: '100%',
               caretColor: 'black',
               color: 'black',
-              backgroundColor: 'white',
-              textAlign: 'center'
+              backgroundColor: 'white'
             }}
           />
           <button type="submit" disabled={!userGuess.trim()} style={{ padding: '15px', fontSize: '1.1rem' }}>SUBMIT GUESS</button>
           <button type="button" onClick={handleSkip} style={{ backgroundColor: '#ccc', color: '#333', fontSize: '0.9rem' }}>SKIP DIALOG</button>
         </form>
       </div>
-
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @keyframes soundWave {
-          from { height: 4px; }
-          to { height: 20px; }
-        }
-      `}} />
     </div>
   );
 }

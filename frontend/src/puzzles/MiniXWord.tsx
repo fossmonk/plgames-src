@@ -200,31 +200,17 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
         autoComplete="off"
         spellCheck="false"
         onChange={handleInputChange}
-        style={{
-          position: 'absolute',
-          opacity: 0,
-          pointerEvents: 'none',
-          top: '50%',
-          left: '50%',
-          zIndex: -1
-        }}
+        className="hidden-input"
       />
-      <h1 className="brand-name" style={{ marginBottom: '20px' }}>{title}</h1>
+      <h1 className="brand-name mb-20">{title}</h1>
 
-      <div ref={sheetRef} className="crossword-layout" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
+      <div ref={sheetRef} className="crossword-layout">
 
         {/* Grid Container */}
         <div
           className="xword-grid"
           style={{
-            display: 'grid',
             gridTemplateColumns: `repeat(${cols}, 1fr)`,
-            gap: '2px',
-            backgroundColor: '#333',
-            border: '4px solid #333',
-            width: '100%',
-            maxWidth: '500px',
-            margin: '0 auto'
           }}
         >
           {userGrid.map((row, r) => row.map((cell, c) => {
@@ -238,33 +224,13 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
               <div
                 key={`${r}-${c}`}
                 onClick={() => handleCellClick(r, c)}
-                className={checkStatus ? `pulse-${checkStatus}` : ''}
+                className={`xword-cell ${isBlack ? 'black' : ''} ${isSelected ? 'selected' : ''} ${inWord ? 'in-word' : ''} ${checkStatus ? `pulse-${checkStatus}` : ''}`}
                 style={{
-                  position: 'relative',
-                  backgroundColor: isBlack ? '#1a1a1a' : (isSelected ? '#ff008a' : (inWord ? '#ffd1e3' : 'white')),
-                  color: isSelected ? 'white' : 'black',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  fontSize: 'clamp(0.8rem, 4vw, 1.4rem)',
-                  fontWeight: 'bold',
-                  cursor: isBlack ? 'default' : 'pointer',
-                  userSelect: 'none',
-                  aspectRatio: '1 / 1',
-                  boxSizing: 'border-box',
-                  overflow: 'hidden',
                   boxShadow: checkStatus === 'correct' ? 'inset 0 0 10px #4caf50' : (checkStatus === 'incorrect' ? 'inset 0 0 10px #f44336' : 'none'),
-                  transition: 'box-shadow 0.3s ease'
                 }}
               >
                 {number && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '2px',
-                    left: '2px',
-                    fontSize: '0.6rem',
-                    color: isSelected ? 'white' : '#666'
-                  }}>
+                  <span className={`cell-number ${isSelected ? 'selected' : ''}`}>
                     {number}
                   </span>
                 )}
@@ -275,11 +241,9 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
         </div>
 
         {/* Clue Section */}
-        <div className="clue-display" style={{ textAlign: 'center', minHeight: '60px', padding: '15px', backgroundColor: '#fdf2f8', borderRadius: '12px', width: '100%', maxWidth: '400px' }}>
-          <h4 style={{ margin: '0 0 5px 0', color: '#ff008a', textTransform: 'uppercase', fontSize: '0.8rem' }}>
-            {direction}
-          </h4>
-          <h4 style={{ margin: 0, fontWeight: '600' }}>
+        <div className="clue-display-bar clue-display">
+          <h4>{direction}</h4>
+          <h4>
             {(() => {
               const number = getCellNumber(cursor.row, cursor.col);
               if (!number) return "Select a numbered cell to see clue";
@@ -297,24 +261,24 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
         </div>
 
         {!finished && (
-          <div className="no-capture" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-            <button onClick={handleCheck} style={{ backgroundColor: '#2196f3', fontSize: '0.8rem', padding: '8px 15px' }}>
+          <div className="no-capture mt-10 flex-center">
+            <button onClick={handleCheck} style={{ backgroundColor: '#2196f3', fontSize: '0.8rem', padding: '8px 15px', width: 'auto' }}>
               CHECK ANSWERS
             </button>
           </div>
         )}
 
         {finished && (
-          <div className="victory-overlay" style={{ textAlign: 'center', animation: 'fadeIn 0.5s ease' }}>
-            <h2 style={{ color: '#ff008a' }}>Perfect! 🥳</h2>
+          <div className="victory-overlay">
+            <h2>Perfect! 🥳</h2>
 
-            <div className="capture-branding">
-              <img src={`/logo.png`} alt="Logo" style={{ width: '50px', height: '50px' }} />
+            <div className="capture-branding flex-col flex-center">
+              <img src={`/logo.png`} alt="Logo" className="brand-logo-ui" />
               <h2 className="brand-result">PINKLUNGI GAMES</h2>
               <h5 className="capture-link">pinklungigames.com</h5>
             </div>
 
-            <div className="no-capture" style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+            <div className="no-capture flex-center gap-10">
               <button onClick={handleShareImage}>Share Result</button>
               <button onClick={() => window.location.reload()}>Play Again</button>
             </div>
@@ -323,26 +287,28 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
       </div>
 
       {/* Clue Lists (Side by Side) */}
-      <div className="clue-lists" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '40px', textAlign: 'left' }}>
-        <div>
-          <h3 style={{ borderBottom: '2px solid #ff008a', paddingBottom: '5px' }}>ACROSS</h3>
+      <div className="clue-lists-grid">
+        <div className="clue-list-section">
+          <h3>ACROSS</h3>
           {clues.across.map(cl => (
             <div
               key={`ac-${cl.number}`}
               onClick={() => { setCursor({ row: cl.row, col: cl.col }); setDirection('across'); }}
-              style={{ padding: '8px 0', cursor: 'pointer', borderBottom: '1px solid #eee', opacity: (direction === 'across' && cursor.row === cl.row) ? 1 : 0.7 }}
+              className="clue-item-row"
+              style={{ opacity: (direction === 'across' && cursor.row === cl.row) ? 1 : 0.7 }}
             >
               <strong>{cl.number}.</strong> {cl.text} [{cl.answer.length}]
             </div>
           ))}
         </div>
-        <div>
-          <h3 style={{ borderBottom: '2px solid #ff008a', paddingBottom: '5px' }}>DOWN</h3>
+        <div className="clue-list-section">
+          <h3>DOWN</h3>
           {clues.down.map(cl => (
             <div
               key={`dn-${cl.number}`}
               onClick={() => { setCursor({ row: cl.row, col: cl.col }); setDirection('down'); }}
-              style={{ padding: '8px 0', cursor: 'pointer', borderBottom: '1px solid #eee', opacity: (direction === 'down' && cursor.col === cl.col) ? 1 : 0.7 }}
+              className="clue-item-row"
+              style={{ opacity: (direction === 'down' && cursor.col === cl.col) ? 1 : 0.7 }}
             >
               <strong>{cl.number}.</strong> {cl.text} [{cl.answer.length}]
             </div>

@@ -70,10 +70,10 @@ export function Mcq({ data, title }: { data: any; title: string }) {
           <div className="score-text">{score} / {data.questions.length}</div>
 
           {showReview ? (
-            <div className="results-review" style={{ textAlign: 'left' }}>
+            <div className="text-left">
               {userAnswers.map((q, idx) => (
-                <div key={idx} className="game-card" style={{ marginBottom: '15px' }}>
-                  <h3>{q.text}</h3>
+                <div key={idx} className="game-card mb-20">
+                  <h3 className="mb-10">{q.text}</h3>
                   {q.options.map((opt: string, i: number) => {
                     const isSelected = q.userChoice === i;
                     const isCorrect = q.correct_idx === i;
@@ -89,12 +89,12 @@ export function Mcq({ data, title }: { data: any; title: string }) {
             </div>
           ) : (
             <>
-              <div className="capture-branding">
-                <img src={`/logo.png`} alt="Logo" style={{ width: '50px', height: '50px' }} />
+              <div className="capture-branding flex-col flex-center">
+                <img src={`/logo.png`} alt="Logo" className="brand-logo-ui" />
                 <h2 className="brand-result">PINKLUNGI GAMES</h2>
                 <h5 className="capture-link">pinklungigames.com</h5>
               </div>
-              <div className="no-capture" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div className="no-capture flex-col gap-10">
                 <button onClick={() => setShowReview(true)}>VIEW SOLUTIONS</button>
                 <button onClick={handleShareImage}>SHARE RESULT</button>
                 <button onClick={() => window.location.reload()}>PLAY AGAIN</button>
@@ -108,8 +108,8 @@ export function Mcq({ data, title }: { data: any; title: string }) {
 
   return (
     <div className="container">
-      <h1 className="brand-name" style={{ marginBottom: '20px' }}>{title}</h1>
-      <div className="progress-indicator" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
+      <h1 className="brand-name mb-20">{title}</h1>
+      <div className="progress-indicator bold mb-20">
         Question {currentIdx + 1} of {data.questions.length}
       </div>
 
