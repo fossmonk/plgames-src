@@ -221,7 +221,8 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
               border: '2px solid #ccc',
               width: '100%',
               caretColor: 'black',
-              color: 'black'
+              color: 'black',
+              backgroundColor: 'white'
             }}
           />
           <button type="submit" disabled={!userGuess.trim()}>Submit Guess</button>

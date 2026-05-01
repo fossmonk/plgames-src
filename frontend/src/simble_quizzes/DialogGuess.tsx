@@ -235,6 +235,7 @@ export function DialogGuess({ data, title, gameId }: { data: any; title: string;
               width: '100%',
               caretColor: 'black',
               color: 'black',
+              backgroundColor: 'white',
               textAlign: 'center'
             }}
           />

@@ -211,8 +211,9 @@ body,
 }
 
 input {
-  caret-color: transparent;
-  /* Makes the blinking line invisible */
+  caret-color: auto;
+  background-color: #ffffff !important;
+  color: #000000 !important;
 }
 
 /* Buttons and Inputs */
