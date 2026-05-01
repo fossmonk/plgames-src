@@ -201,17 +201,43 @@ body,
 }
 
 .game-card {
-  background: var(--color-white);
-  border: 2px solid var(--color-pink);
-  padding: 20px;
-  border-radius: 12px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 0, 138, 0.1);
+  padding: 30px;
+  border-radius: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
 }
 
 .game-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(255, 105, 180, 0.2);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 25px -5px rgba(255, 0, 138, 0.1),
+    0 10px 10px -5px rgba(255, 0, 138, 0.05);
+  border-color: var(--color-pink);
+}
+
+.game-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-pink), var(--color-yellow));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.game-card:hover::before {
+  opacity: 1;
 }
 
 input {
@@ -224,19 +250,28 @@ input {
 button {
   margin-top: 15px;
   cursor: pointer;
-  padding: 12px 24px;
-  background-color: var(--color-pink);
+  padding: 14px 28px;
+  background: linear-gradient(135deg, var(--color-pink) 0%, #c2185b 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-weight: bold;
+  border-radius: 50px;
+  font-weight: 600;
   font-size: 16px;
   width: 100%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(255, 0, 138, 0.2);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 button:hover {
-  background-color: var(--color-yellow);
-  color: var(--color-text);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 0, 138, 0.4);
+  filter: brightness(1.1);
+}
+
+button:active {
+  transform: translateY(0);
 }
 
 .submit-btn:disabled {
@@ -255,29 +290,30 @@ button:hover {
 .radio-option {
   display: flex;
   align-items: center;
-  padding: 10px;
-  border: 2px solid #333;
-  border-radius: 12px;
-  margin-bottom: 10px;
+  gap: 15px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  background: #f8f9fa;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
   cursor: pointer;
-  background-color: #fff;
-  transition: background-color 0.2s ease;
-  gap: 10px;
-
-  /* Force text to black */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   color: #000 !important;
   font-weight: 500;
 }
 
-/* Highlight state when selected */
-.radio-option:has(input:checked) {
-  background-color: var(--color-yellow);
-  border-color: #000;
-  /* Darker border to match the hand-drawn style */
+.radio-option:hover {
+  background: #fff;
+  border-color: var(--color-pink);
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.radio-option:hover {
-  background: #f0f0f0;
+/* Highlight state when selected */
+.radio-option:has(input:checked) {
+  background-color: #fff0f5;
+  border-color: var(--color-pink);
+  box-shadow: 0 4px 12px rgba(255, 0, 138, 0.1);
 }
 
 .game-over-meme {
@@ -537,6 +573,8 @@ button:hover {
   box-sizing: border-box;
   /* Crucial: includes padding in total width */
   overflow: hidden;
+  border-radius: 8px !important;
+  text-transform: none !important;
 }
 
 @media (max-width: 400px) {
@@ -595,11 +633,12 @@ button:hover {
   /* Force black text */
   font-weight: bold;
   font-size: 0.85rem;
-  border-radius: 8px;
+  border-radius: 8px !important;
   opacity: 1;
   /* Ensure not transparent */
   flex: 1 1 auto;
   max-width: 120px;
+  text-transform: uppercase;
 }
 
 .controls button:hover {
