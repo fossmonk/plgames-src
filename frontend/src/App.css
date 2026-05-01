@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
 :root {
   --color-white: #ffffff;
   --color-pink: #ff008a;
@@ -34,9 +36,11 @@ h1,
 h2,
 h3,
 span,
-label {
+label,
+button,
+input {
   color: var(--text-color);
-  font-family: 'Arial-Black', 'Helvetica Bold', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
 }
 
 h1,
@@ -303,8 +307,7 @@ button:hover {
 }
 
 .score-text {
-  /* Added 'Comic Neue' to the stack for better mobile consistency */
-  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 3rem;
   font-weight: 800 !important;
   /* Heavier weight prevents "fading" */
