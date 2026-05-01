@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
-import { QuickQuizComponent } from './QuickQuiz.tsx'
+import { SimbleQuizComponent } from './SimbleQuiz.tsx'
 import { PuzzleComponent } from './Puzzle.tsx'
 import { LiveQuizComponent } from './LiveQuiz.tsx'
 import Layout from './components/Layout.tsx';
@@ -79,8 +79,8 @@ function GameRunner() {
 
   // The Switcher Pattern: Routes to the correct UI based on game type
   switch (game.type) {
-    case 'quick_quiz':
-      return <QuickQuizComponent game={game} />;
+    case 'simble_quiz':
+      return <SimbleQuizComponent game={game} />;
     case 'puzzle':
       return <PuzzleComponent game={game} />;
     case 'live_quiz':

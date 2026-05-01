@@ -23,7 +23,7 @@ The database uses SQLAlchemy, defined in `backend/app/models.py`.
 - **`User`**: Stores user authentication data (`email`, `google_id`).
 - **`Game`**: The core entity storing game configurations.
   - `category`, `description`: Metadata for browsing.
-  - `game_type`: Defines the top-level game engine (`quick_quiz`, `puzzle`, `live_quiz`).
+  - `game_type`: Defines the top-level game engine (`simble_quiz`, `puzzle`, `live_quiz`).
   - `game_subtype`: Used for specific variations (e.g., `connections` under `puzzle`).
   - `content`: A JSON column storing the actual game data (questions, grid items, difficulty levels). This is the core driver of the games.
 - **`Score`**: Tracks user performance (`user_id`, `game_id`, `points`).
@@ -34,7 +34,7 @@ The database uses SQLAlchemy, defined in `backend/app/models.py`.
 The frontend is primarily driven by React Router, structured in `frontend/src/App.tsx`.
 
 ### 4.1 Routing Structure
-- **`/` (HomePage)**: Aggregates games by `category` (e.g., Quick Quizzes, Puzzles).
+- **`/` (HomePage)**: Aggregates games by `category` (e.g., Simble Quiz, Puzzles).
 - **`/category/:categoryName` (CategoryPage)**: Displays subtypes within a category (e.g., Connections).
 - **`/play/:gameId` (GameRunner)**: The core dynamic gateway. Fetches game JSON from the backend and delegates rendering to the appropriate game engine component.
 

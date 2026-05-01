@@ -34,10 +34,11 @@ def save_to_json():
     data = {
         "title"       : entry_title.get(),
         "description" : entry_desc.get(),
+        "subtype"     : "mcq",
         "content"     : {"questions": questions_list}
     }
 
-    filename = "new_quick_quiz.json"
+    filename = "new_simble_quiz.json"
     with open(filename, 'w') as f:
         json.dump(data, f, indent=4)
     print(f"Saved to {filename}")
@@ -46,7 +47,7 @@ def save_to_json():
 
 # --- GUI ---
 root = tk.Tk()
-root.title("PinkLungi Games Admin Tool - Quick Quizzes")
+root.title("PinkLungi Games Admin Tool - Simble Quiz")
 
 # Input Section
 tk.Label(root, text="Title:").pack(); entry_title = tk.Entry(root, width=50); entry_title.pack()

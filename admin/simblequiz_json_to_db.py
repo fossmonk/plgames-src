@@ -24,8 +24,8 @@ def import_json(filepath):
     session = SessionLocal()
     new_game = Game(
         title=data['title'],
-        category='Quick Quizzes',
-        game_type='quick_quiz',
+        category='Simble Quiz',
+        game_type='simble_quiz',
         game_subtype=data.get('subtype'),
         description=data['description'],
         content=data['content']

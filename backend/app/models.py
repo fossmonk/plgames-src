@@ -13,7 +13,7 @@ class Game(Base):
     __tablename__ = 'games'
     id = Column(Integer, primary_key=True)
     title = Column(String)
-    # Quick Quizzes, Puzzles, Live Quizzes
+    # Simble Quiz, Puzzles, Live Quizzes
     category = Column(String)
     description = Column(String)
     # quick_quiz, puzzle or live_quiz
