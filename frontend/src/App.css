@@ -123,7 +123,7 @@ body,
 
 .banner-title {
   color: var(--color-white) !important;
-  font-family: 'Arial Black', 'Helvetica Bold', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 900;
   font-size: 1.8rem;
   text-transform: uppercase;
@@ -486,13 +486,12 @@ button:active {
 
 /* The Sprite Box */
 .mascot-animation {
-  width: 217px;
+  width: 208px;
   /* Width of ONE frame */
-  height: 274px;
+  height: 212px;
   /* Height of ONE frame */
-  background-image: url('/anims/wearingthelungi.png');
+  background-image: url('/anims/mascot.png');
   background-repeat: no-repeat;
-  scale: 0.7;
 
   /* The Animation */
   animation: play-animation 1.5s steps(6) infinite;
@@ -500,14 +499,14 @@ button:active {
 
 @keyframes play-animation {
   from {
-    background-position: 0px;
+    background-position: 0 0;
   }
 
   to {
-    background-position: -1301px;
+    background-position: 0 -1272px;
   }
 
-  /* 6 frames * 100px width */
+  /* 6 frames * 274px height */
 }
 
 /* Connections */

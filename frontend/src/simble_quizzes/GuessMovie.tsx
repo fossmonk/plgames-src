@@ -162,10 +162,10 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
       <h1 className="brand-name" style={{ marginBottom: '20px' }}>{title}</h1>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <div className="progress-indicator" style={{ fontWeight: 'bold' }}>
+        <div className="progress-indicator" style={{ fontWeight: 'bold', fontFamily: 'Space Grotesk, sans-serif' }}>
           Movie {currentIdx + 1} of {data.questions.length}
         </div>
-        <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
+        <div style={{ fontWeight: 'bold', fontSize: '1.2rem', fontFamily: 'Space Grotesk, sans-serif' }}>
           Hints Used: {hintsUsed} / 2
         </div>
       </div>
@@ -190,7 +190,8 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
             color: 'white',
             padding: '5px 10px',
             borderRadius: '20px',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            fontFamily: 'Space Grotesk, sans-serif'
           }}>
             Score if correct: {possiblePoints}
           </div>
@@ -199,7 +200,7 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
         <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
           {hintsUsed < 2 && (
             <button onClick={handleShowHint} style={{ backgroundColor: '#ff008a' }}>
-              SHOW HINT (-2 pts)
+              UNBLUR (-2 pts)
             </button>
           )}
         </div>

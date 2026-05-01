@@ -149,10 +149,10 @@ export function DialogGuess({ data, title, gameId }: { data: any; title: string;
       <h1 className="brand-name" style={{ marginBottom: '20px' }}>{title}</h1>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <div className="progress-indicator" style={{ fontWeight: 'bold' }}>
+        <div className="progress-indicator" style={{ fontWeight: 'bold', fontFamily: 'Space Grotesk, sans-serif' }}>
           Dialog {currentIdx + 1} of {data.questions.length}
         </div>
-        <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
+        <div style={{ fontWeight: 'bold', fontSize: '1.2rem', fontFamily: 'Space Grotesk, sans-serif' }}>
           Score: {score}
         </div>
       </div>
@@ -244,7 +244,8 @@ export function DialogGuess({ data, title, gameId }: { data: any; title: string;
         </form>
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes soundWave {
           from { height: 4px; }
           to { height: 20px; }
