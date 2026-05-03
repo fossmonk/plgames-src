@@ -63,12 +63,31 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
     if (complete) setFinished(true);
   }, [userGrid, rows, cols]);
 
+  const getSupportedDirections = (r: number, c: number) => {
+    const hasAcross = clues.across.some(cl =>
+      cl.row === r && c >= cl.col && c < cl.col + cl.answer.length
+    );
+    const hasDown = clues.down.some(cl =>
+      cl.col === c && r >= cl.row && r < cl.row + cl.answer.length
+    );
+    return { hasAcross, hasDown };
+  };
+
   const handleCellClick = (r: number, c: number) => {
     if (grid[r][c] === null) return;
+
+    const { hasAcross, hasDown } = getSupportedDirections(r, c);
+
     if (cursor.row === r && cursor.col === c) {
-      setDirection(prev => (prev === 'across' ? 'down' : 'across'));
+      // Toggle if both available
+      if (hasAcross && hasDown) {
+        setDirection(prev => (prev === 'across' ? 'down' : 'across'));
+      }
     } else {
       setCursor({ row: r, col: c });
+      // Auto-switch if only one direction supported
+      if (hasAcross && !hasDown) setDirection('across');
+      else if (hasDown && !hasAcross) setDirection('down');
     }
     // Trigger mobile keyboard
     inputRef.current?.focus();
@@ -161,10 +180,30 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
   };
 
   const isCellInCurrentWord = (r: number, c: number) => {
-    // Very simplified check: same row/col as cursor
-    if (direction === 'across') return r === cursor.row;
-    return c === cursor.col;
+    const currentClue = clues[direction].find(cl => {
+      if (direction === 'across') {
+        return cl.row === cursor.row && cursor.col >= cl.col && cursor.col < cl.col + cl.answer.length;
+      } else {
+        return cl.col === cursor.col && cursor.row >= cl.row && cursor.row < cl.row + cl.answer.length;
+      }
+    });
+
+    if (!currentClue) return false;
+
+    if (direction === 'across') {
+      return r === currentClue.row && c >= currentClue.col && c < currentClue.col + currentClue.answer.length;
+    } else {
+      return c === currentClue.col && r >= currentClue.row && r < currentClue.row + currentClue.answer.length;
+    }
   };
+
+  const currentClue = clues[direction].find(cl => {
+    if (direction === 'across') {
+      return cl.row === cursor.row && cursor.col >= cl.col && cursor.col < cl.col + cl.answer.length;
+    } else {
+      return cl.col === cursor.col && cursor.row >= cl.row && cursor.row < cl.row + cl.answer.length;
+    }
+  });
 
   const handleShareImage = async () => {
     const element = sheetRef.current;
@@ -191,7 +230,7 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
   if (userGrid.length === 0) return null;
 
   return (
-    <div className="container" onKeyDown={handleKeyDown} tabIndex={0} style={{ outline: 'none' }}>
+    <div className="container xword-page no-outline" onKeyDown={handleKeyDown} tabIndex={0}>
       {/* Hidden input to trigger mobile keyboard */}
       <input
         ref={inputRef}
@@ -205,114 +244,106 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
       <h1 className="brand-name mb-20">{title}</h1>
 
       <div ref={sheetRef} className="crossword-layout">
+        <div className="grid-section flex-col items-center">
+          {/* Clue Section - Sticky on mobile */}
+          <div className="clue-display-bar clue-display">
+            <h4 className="uppercase">{direction}</h4>
+            <h4>
+              {currentClue ? `${currentClue.number}. ${currentClue.text} [${currentClue.answer.length}]` : "Select a cell to see clue"}
+            </h4>
+          </div>
 
-        {/* Grid Container */}
-        <div
-          className="xword-grid"
-          style={{
-            gridTemplateColumns: `repeat(${cols}, 1fr)`,
-          }}
-        >
-          {userGrid.map((row, r) => row.map((cell, c) => {
-            const isBlack = cell === '#';
-            const isSelected = cursor.row === r && cursor.col === c;
-            const inWord = isCellInCurrentWord(r, c) && !isBlack;
-            const number = getCellNumber(r, c);
-            const checkStatus = checkedCells[`${r}-${c}`];
+          {/* Grid Container */}
+          <div
+            className="xword-grid"
+            style={{
+              gridTemplateColumns: `repeat(${cols}, 1fr)`,
+            }}
+          >
+            {userGrid.map((row, r) => row.map((cell, c) => {
+              const isBlack = cell === '#';
+              const isSelected = cursor.row === r && cursor.col === c;
+              const inWord = isCellInCurrentWord(r, c) && !isBlack;
+              const number = getCellNumber(r, c);
+              const checkStatus = checkedCells[`${r}-${c}`];
 
-            return (
-              <div
-                key={`${r}-${c}`}
-                onClick={() => handleCellClick(r, c)}
-                className={`xword-cell ${isBlack ? 'black' : ''} ${isSelected ? 'selected' : ''} ${inWord ? 'in-word' : ''} ${checkStatus ? `pulse-${checkStatus}` : ''}`}
-                style={{
-                  boxShadow: checkStatus === 'correct' ? 'inset 0 0 10px #4caf50' : (checkStatus === 'incorrect' ? 'inset 0 0 10px #f44336' : 'none'),
-                }}
-              >
-                {number && (
-                  <span className={`cell-number ${isSelected ? 'selected' : ''}`}>
-                    {number}
-                  </span>
-                )}
-                {!isBlack && cell}
+              return (
+                <div
+                  key={`${r}-${c}`}
+                  onClick={() => handleCellClick(r, c)}
+                  className={`xword-cell ${isBlack ? 'black' : ''} ${isSelected ? 'selected' : ''} ${inWord ? 'in-word' : ''} ${checkStatus ? `pulse-${checkStatus}` : ''} ${(!getSupportedDirections(r, c).hasAcross || !getSupportedDirections(r, c).hasDown) ? 'single-dir' : ''}`}
+                  style={{
+                    boxShadow: checkStatus === 'correct' ? 'inset 0 0 10px #4caf50' : (checkStatus === 'incorrect' ? 'inset 0 0 10px #f44336' : 'none'),
+                  }}
+                >
+                  {number && (
+                    <span className={`cell-number ${isSelected ? 'selected' : ''}`}>
+                      {number}
+                    </span>
+                  )}
+                  {!isBlack && cell}
+                </div>
+              );
+            }))}
+          </div>
+          {!finished && (
+            <div className="no-capture mt-20 flex-center">
+              <button onClick={handleCheck} style={{ backgroundColor: '#2196f3', fontSize: '0.8rem', padding: '8px 15px', width: 'auto' }}>
+                CHECK ANSWERS
+              </button>
+            </div>
+          )}
+
+          {finished && (
+            <div className="victory-overlay mt-20">
+              <h2>Perfect! 🥳</h2>
+
+              <div className="capture-branding flex-col flex-center">
+                <img src={`/logo.png`} alt="Logo" className="brand-logo-ui" />
+                <h2 className="brand-result">PINKLUNGI GAMES</h2>
+                <h5 className="capture-link">pinklungigames.com</h5>
               </div>
-            );
-          }))}
+
+              <div className="no-capture flex-center gap-10">
+                <button onClick={handleShareImage}>Share Result</button>
+                <button onClick={() => window.location.reload()}>Play Again</button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Clue Section */}
-        <div className="clue-display-bar clue-display">
-          <h4>{direction}</h4>
-          <h4>
-            {(() => {
-              const number = getCellNumber(cursor.row, cursor.col);
-              if (!number) return "Select a numbered cell to see clue";
-
-              const currentClue = clues[direction].find(cl => {
-                if (direction === 'across') {
-                  return cl.row === cursor.row && cursor.col >= cl.col && cursor.col < cl.col + cl.answer.length;
-                } else {
-                  return cl.col === cursor.col && cursor.row >= cl.row && cursor.row < cl.row + cl.answer.length;
-                }
-              });
-              return currentClue ? `${currentClue.number}. ${currentClue.text} [${currentClue.answer.length}]` : "Select a cell to see clue";
-            })()}
-          </h4>
-        </div>
-
-        {!finished && (
-          <div className="no-capture mt-10 flex-center">
-            <button onClick={handleCheck} style={{ backgroundColor: '#2196f3', fontSize: '0.8rem', padding: '8px 15px', width: 'auto' }}>
-              CHECK ANSWERS
-            </button>
+        {/* Clue Lists (Side by Side / Scrollable) */}
+        <div className="clue-lists-grid">
+          <div className="clue-list-section">
+            <h3>ACROSS</h3>
+            {clues.across.map(cl => {
+              const isActive = direction === 'across' && currentClue?.number === cl.number;
+              return (
+                <div
+                  key={`ac-${cl.number}`}
+                  onClick={() => { setCursor({ row: cl.row, col: cl.col }); setDirection('across'); }}
+                  className={`clue-item-row ${isActive ? 'active' : ''}`}
+                >
+                  <strong>{cl.number}.</strong> {cl.text} [{cl.answer.length}]
+                </div>
+              );
+            })}
           </div>
-        )}
-
-        {finished && (
-          <div className="victory-overlay">
-            <h2>Perfect! 🥳</h2>
-
-            <div className="capture-branding flex-col flex-center">
-              <img src={`/logo.png`} alt="Logo" className="brand-logo-ui" />
-              <h2 className="brand-result">PINKLUNGI GAMES</h2>
-              <h5 className="capture-link">pinklungigames.com</h5>
-            </div>
-
-            <div className="no-capture flex-center gap-10">
-              <button onClick={handleShareImage}>Share Result</button>
-              <button onClick={() => window.location.reload()}>Play Again</button>
-            </div>
+          <div className="clue-list-section">
+            <h3>DOWN</h3>
+            {clues.down.map(cl => {
+              const isActive = direction === 'down' && currentClue?.number === cl.number;
+              return (
+                <div
+                  key={`dn-${cl.number}`}
+                  onClick={() => { setCursor({ row: cl.row, col: cl.col }); setDirection('down'); }}
+                  className={`clue-item-row ${isActive ? 'active' : ''}`}
+                >
+                  <strong>{cl.number}.</strong> {cl.text} [{cl.answer.length}]
+                </div>
+              );
+            })}
           </div>
-        )}
-      </div>
-
-      {/* Clue Lists (Side by Side) */}
-      <div className="clue-lists-grid">
-        <div className="clue-list-section">
-          <h3>ACROSS</h3>
-          {clues.across.map(cl => (
-            <div
-              key={`ac-${cl.number}`}
-              onClick={() => { setCursor({ row: cl.row, col: cl.col }); setDirection('across'); }}
-              className="clue-item-row"
-              style={{ opacity: (direction === 'across' && cursor.row === cl.row) ? 1 : 0.7 }}
-            >
-              <strong>{cl.number}.</strong> {cl.text} [{cl.answer.length}]
-            </div>
-          ))}
-        </div>
-        <div className="clue-list-section">
-          <h3>DOWN</h3>
-          {clues.down.map(cl => (
-            <div
-              key={`dn-${cl.number}`}
-              onClick={() => { setCursor({ row: cl.row, col: cl.col }); setDirection('down'); }}
-              className="clue-item-row"
-              style={{ opacity: (direction === 'down' && cursor.col === cl.col) ? 1 : 0.7 }}
-            >
-              <strong>{cl.number}.</strong> {cl.text} [{cl.answer.length}]
-            </div>
-          ))}
         </div>
       </div>
     </div>

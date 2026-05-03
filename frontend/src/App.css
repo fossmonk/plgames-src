@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 
 :root {
   --color-white: #ffffff;
@@ -195,6 +196,10 @@ body,
   display: block;
 }
 
+.items-center {
+  align-items: center;
+}
+
 .no-outline {
   outline: none;
 }
@@ -327,17 +332,33 @@ body,
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
+  gap: 20px;
+  width: 100%;
 }
+
+
 
 .clue-display-bar {
   text-align: center;
-  min-height: 60px;
-  padding: 15px;
-  background-color: #fdf2f8;
-  border-radius: 12px;
+  min-height: 70px;
+  padding: 12px 20px;
+  background: white;
+  border: 2px solid var(--color-pink);
+  border-radius: 16px;
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
+  box-shadow: 0 8px 16px rgba(255, 0, 138, 0.1);
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+/* Sticky on mobile to prevent scrolling for clues */
+@media (max-width: 899px) {
+  .clue-display-bar {
+    position: sticky;
+    top: 10px;
+    margin-bottom: 20px;
+  }
 }
 
 .clue-display-bar h4:first-child {
@@ -356,20 +377,68 @@ body,
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  margin-top: 40px;
+  margin-top: 20px;
   text-align: left;
+  width: 100%;
+  max-width: 600px;
 }
 
-.clue-list-section h3 {
-  border-bottom: 2px solid var(--color-pink);
-  padding-bottom: 5px;
+.clue-list-section {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 15px;
+  border-radius: 12px;
 }
 
 .clue-item-row {
-  padding: 8px 0;
+  padding: 10px 0;
   cursor: pointer;
-  border-bottom: 1px solid #eee;
-  transition: opacity 0.2s;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.clue-item-row:hover {
+  color: var(--color-pink);
+  padding-left: 5px;
+}
+
+.clue-item-row.active {
+  color: var(--color-pink);
+  font-weight: 700;
+  border-bottom-color: var(--color-pink);
+  background: rgba(255, 0, 138, 0.05);
+}
+
+@media (min-width: 900px) {
+  .container.xword-page {
+    max-width: 95%;
+    width: 1400px;
+    padding: 10px;
+  }
+
+  .crossword-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+  }
+
+  .grid-section {
+    flex: 1 1 auto;
+    max-width: 600px;
+  }
+
+  .clue-lists-grid {
+    flex: 1;
+    grid-template-columns: 1fr 1fr; /* Side-by-side Across/Down clues */
+    margin-top: 0 !important;
+    max-height: 85vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 15px;
+    max-width: none;
+  }
 }
 
 .victory-overlay {
@@ -381,15 +450,23 @@ body,
   color: var(--color-pink);
 }
 
-/* --- CROSSWORD GRID --- */
 .xword-grid {
   display: grid;
   gap: 2px;
   background-color: #333;
   border: 4px solid #333;
-  width: 100%;
-  max-width: 500px;
+  width: 95vw;
+  max-width: 600px;
+  /* Increased from 500px */
   margin: 0 auto;
+  /* Removed aspect-ratio: 1/1 to support non-square grids */
+}
+
+@media (max-height: 800px) {
+  .xword-grid {
+    max-width: 70vh;
+    /* Shrink slightly to fit shorter screens without scrolling */
+  }
 }
 
 .xword-cell {
@@ -399,14 +476,14 @@ body,
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: clamp(0.8rem, 4vw, 1.4rem);
+  font-size: clamp(1rem, 6vw, 2.2rem);
   font-weight: bold;
   cursor: pointer;
   user-select: none;
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
   overflow: hidden;
-  transition: background-color 0.2s, color 0.2s, box-shadow 0.3s ease;
+  transition: background-color 0.1s, color 0.1s, box-shadow 0.3s ease;
 }
 
 .xword-cell.black {
@@ -420,8 +497,11 @@ body,
 }
 
 .xword-cell.in-word {
-  background-color: #ffd1e3;
+  background-color: #fff0f5;
+  /* Lightest pink */
 }
+
+/* Indicator for cells that have only one possible direction - REMOVED */
 
 .cell-number {
   position: absolute;
@@ -464,7 +544,7 @@ body,
 
 .banner-title {
   color: var(--color-white) !important;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Rubik', sans-serif;
   font-weight: 900;
   font-size: 1.8rem;
   text-transform: uppercase;
@@ -519,13 +599,18 @@ body,
 }
 
 /* Content Area */
-.container,
-.main-content {
-  flex: 1;
+.container {
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
   padding: 20px;
+}
+
+.main-content {
+  flex: 1;
+  width: 100%;
+  margin: 0 auto;
+  /* Removed max-width here to allow children to expand */
 }
 
 .hero {
