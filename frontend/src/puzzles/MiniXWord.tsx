@@ -77,6 +77,7 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
     if (grid[r][c] === null) return;
 
     const { hasAcross, hasDown } = getSupportedDirections(r, c);
+    const cellNumber = getCellNumber(r, c);
 
     if (cursor.row === r && cursor.col === c) {
       // Toggle if both available
@@ -85,9 +86,28 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
       }
     } else {
       setCursor({ row: r, col: c });
-      // Auto-switch if only one direction supported
-      if (hasAcross && !hasDown) setDirection('across');
-      else if (hasDown && !hasAcross) setDirection('down');
+      
+      // If the cell has a number, prioritize the word STARTING at that cell
+      if (cellNumber) {
+        const startsAcross = clues.across.some(cl => cl.row === r && cl.col === c);
+        const startsDown = clues.down.some(cl => cl.row === r && cl.col === c);
+        
+        if (startsAcross && !startsDown) setDirection('across');
+        else if (startsDown && !startsAcross) setDirection('down');
+        else if (startsAcross && startsDown) {
+          // If it starts both, and current direction is one of them, keep it.
+          // Otherwise default to across.
+          if (direction !== 'across' && direction !== 'down') setDirection('across');
+        } else {
+          // If it has a number but doesn't start anything there (rare), use normal logic
+          if (hasAcross && !hasDown) setDirection('across');
+          else if (hasDown && !hasAcross) setDirection('down');
+        }
+      } else {
+        // Normal auto-switch if only one direction supported
+        if (hasAcross && !hasDown) setDirection('across');
+        else if (hasDown && !hasAcross) setDirection('down');
+      }
     }
     // Trigger mobile keyboard
     inputRef.current?.focus();
@@ -246,7 +266,7 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
       <div ref={sheetRef} className="crossword-layout">
         <div className="grid-section flex-col items-center">
           {/* Clue Section - Sticky on mobile */}
-          <div className="clue-display-bar clue-display">
+          <div className="clue-display-bar clue-display no-capture">
             <h4 className="uppercase">{direction}</h4>
             <h4>
               {currentClue ? `${currentClue.number}. ${currentClue.text} [${currentClue.answer.length}]` : "Select a cell to see clue"}
@@ -313,7 +333,7 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
         </div>
 
         {/* Clue Lists (Side by Side / Scrollable) */}
-        <div className="clue-lists-grid">
+        <div className="clue-lists-grid no-capture">
           <div className="clue-list-section">
             <h3>ACROSS</h3>
             {clues.across.map(cl => {

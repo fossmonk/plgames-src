@@ -431,7 +431,8 @@ body,
 
   .clue-lists-grid {
     flex: 1;
-    grid-template-columns: 1fr 1fr; /* Side-by-side Across/Down clues */
+    grid-template-columns: 1fr 1fr;
+    /* Side-by-side Across/Down clues */
     margin-top: 0 !important;
     max-height: 85vh;
     overflow-y: auto;
@@ -497,8 +498,8 @@ body,
 }
 
 .xword-cell.in-word {
-  background-color: #fff0f5;
-  /* Lightest pink */
+  background-color: rgb(197, 147, 174);
+  /* Slightly darker pink for the word path */
 }
 
 /* Indicator for cells that have only one possible direction - REMOVED */
