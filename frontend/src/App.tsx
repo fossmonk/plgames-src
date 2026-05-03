@@ -35,7 +35,7 @@ const decryptData = async (encryptedBase64: string) => {
   }
 };
 
-interface Game { id: number; title: string; type: string; desc: string; subtype: string }
+interface Game { id: number; title: string; type: string; category: string; desc: string; subtype: string }
 
 const LoadingScreen = () => (
   <div className='loading-screen'>
@@ -49,6 +49,7 @@ function GameRunner() {
   const { gameId } = useParams();
   const [game, setGame] = useState<any>(null);
   const [error, setError] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`${API_BASE}/api/play/${gameId}`)
@@ -77,17 +78,31 @@ function GameRunner() {
   if (error) return <div className='container'><h2>GAME NOT FOUND.</h2></div>
   if (!game) return <LoadingScreen />;
 
-  // The Switcher Pattern: Routes to the correct UI based on game type
-  switch (game.type) {
-    case 'simble_quiz':
-      return <SimbleQuizComponent game={game} />;
-    case 'puzzle':
-      return <PuzzleComponent game={game} />;
-    case 'live_quiz':
-      return <LiveQuizComponent data={game.data} title={game.title} />;
-    default:
-      return <div className="container"><h2>Unknown game type: {game.type}</h2></div>;
-  }
+  const backToCategory = () => navigate(`/category/${game.type}`);
+
+  const displayCategory = game.category;
+
+  return (
+    <div className="game-page-wrapper">
+      <div className="container" style={{ paddingBottom: '0px', marginBottom: '-10px' }}>
+        <button onClick={backToCategory} className="back-btn no-capture">
+          🔙 Back to {displayCategory}
+        </button>
+      </div>
+      {(() => {
+        switch (game.type) {
+          case 'simble_quiz':
+            return <SimbleQuizComponent game={game} />;
+          case 'puzzle':
+            return <PuzzleComponent game={game} />;
+          case 'live_quiz':
+            return <LiveQuizComponent data={game.data} title={game.title} />;
+          default:
+            return <div className="container"><h2>Unknown game type: {game.type}</h2></div>;
+        }
+      })()}
+    </div>
+  );
 }
 
 // --- Category Page ---
@@ -103,18 +118,34 @@ function CategoryPage({ games }: { games: Game[] }) {
   // If there are multiple, show a "Select Subtype" screen first.
   const [selectedSubtype, setSelectedSubtype] = useState<string | null>(subtypes.length === 1 ? subtypes[0] : null);
   // RESET logic: Whenever categoryName changes, clear the subtype selection
+  // UNLESS there is only one subtype, in which case we auto-select it.
   useEffect(() => {
-    setSelectedSubtype(null);
-  }, [categoryName]);
+    if (subtypes.length === 1) {
+      setSelectedSubtype(subtypes[0]);
+    } else {
+      setSelectedSubtype(null);
+    }
+  }, [categoryName, games]); // Added games to dependency to ensure it updates when data loads
 
   if (!selectedSubtype) {
+    if (subtypes.length === 0) {
+      return (
+        <div className="container">
+          <h2>No games found in {categoryName}.</h2>
+          <button onClick={() => navigate('/')}>Back Home</button>
+        </div>
+      );
+    }
+
+    const displayCategory = categoryGames[0]?.category || categoryName;
+
     return (
       <div className="container">
-        <h2>Select {categoryName} Type</h2>
+        <h2>Select {displayCategory} Type</h2>
         <div className="game-grid">
           {subtypes.map(s => (
             <div key={s} className="game-card" onClick={() => setSelectedSubtype(s)}>
-              <h2 className='force-light'>{SubtypeNames(s)}</h2>
+              <h2 className='force-light'>{SubtypeNames(s) || s}</h2>
             </div>
           ))}
         </div>
@@ -122,10 +153,12 @@ function CategoryPage({ games }: { games: Game[] }) {
     );
   }
 
+  const currentCategory = categoryGames[0]?.category || categoryName;
+
   return (
     <div className="container">
       <header>
-        <button onClick={() => setSelectedSubtype(null)}>🔙 Back To {categoryName}</button>
+        <button onClick={() => setSelectedSubtype(null)} className="back-btn mb-10 no-capture">🔙 Back To {currentCategory}</button>
         <h1>{SubtypeNames(selectedSubtype)}</h1>
         <p>{SubtypeDescriptions(selectedSubtype)}</p>
       </header>
@@ -141,6 +174,7 @@ function CategoryPage({ games }: { games: Game[] }) {
   );
 }
 
+/* --- GAME COMPONENTS --- */
 // --- Home Component ---
 function HomePage({ games }: { games: Game[] }) {
   const navigate = useNavigate();
@@ -149,12 +183,16 @@ function HomePage({ games }: { games: Game[] }) {
   return (
     <div className="container">
       <div className="game-grid">
-        {categories.map((cat) => (
-          <div key={cat} className="game-card" onClick={() => navigate(`/category/${cat}`)}>
-            <h3 className='force-light'>{cat}</h3>
-            <button>BROWSE</button>
-          </div>
-        ))}
+        {categories.map((catType) => {
+          const gameOfThisType = games.find(g => g.type === catType);
+          const categoryDisplayName = gameOfThisType?.category || catType;
+          return (
+            <div key={catType} className="game-card" onClick={() => navigate(`/category/${catType}`)}>
+              <h3 className='force-light'>{categoryDisplayName}</h3>
+              <button>BROWSE</button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

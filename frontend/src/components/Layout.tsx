@@ -26,7 +26,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <h1 className="banner-title">PINKLUNGI GAMES</h1>
           </Link>
         </div>
-        
+
         {/* Search Toggle Button */}
         <button className="search-toggle" onClick={() => setIsSearchOpen(true)}>
           🔍
@@ -38,12 +38,12 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="search-overlay">
           <div className="search-inner">
             <button className="close-btn" onClick={() => setIsSearchOpen(false)}>✕</button>
-            <FuzzySearchBar 
-              quizzes={games} 
+            <FuzzySearchBar
+              quizzes={games}
               onSelect={(game: any) => {
                 setIsSearchOpen(false);
                 navigate(`/play/${game.id}`);
-              }} 
+              }}
             />
           </div>
         </div>
@@ -52,7 +52,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <main className="main-content">{children}</main>
 
       <footer className="main-footer">
-        <p>A Product by PinkLungi</p>
+        <p>A Product by <a href="https://pinklungi.com">PinkLungi</a></p>
       </footer>
     </div>
   );
