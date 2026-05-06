@@ -23,6 +23,7 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
   const [cursor, setCursor] = useState({ row: 0, col: 0 });
   const [direction, setDirection] = useState<'across' | 'down'>('across');
   const [finished, setFinished] = useState(false);
+  const [showClueSheet, setShowClueSheet] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [checkedCells, setCheckedCells] = useState<Record<string, 'correct' | 'incorrect' | null>>({});
@@ -271,15 +272,20 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
             <h4>
               {currentClue ? `${currentClue.number}. ${currentClue.text} [${currentClue.answer.length}]` : "Select a cell to see clue"}
             </h4>
+            <button className="clues-toggle-btn mobile-only" onClick={() => setShowClueSheet(true)}>
+              📖 All Clues
+            </button>
           </div>
 
           {/* Grid Container */}
-          <div
-            className="xword-grid"
-            style={{
-              gridTemplateColumns: `repeat(${cols}, 1fr)`,
-            }}
-          >
+          <div className="xword-grid-container">
+            <div
+              className="xword-grid"
+              style={{
+                gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                aspectRatio: `${cols} / ${rows}`,
+              }}
+            >
             {userGrid.map((row, r) => row.map((cell, c) => {
               const isBlack = cell === '#';
               const isSelected = cursor.row === r && cursor.col === c;
@@ -305,6 +311,7 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
                 </div>
               );
             }))}
+            </div>
           </div>
           {!finished && (
             <div className="no-capture mt-20 flex-center">
@@ -332,9 +339,16 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
           )}
         </div>
 
+        <div className={`bottom-sheet-backdrop ${showClueSheet ? 'open' : ''}`} onClick={() => setShowClueSheet(false)}></div>
+
         {/* Clue Lists (Side by Side / Scrollable) */}
-        <div className="clue-lists-grid no-capture">
-          <div className="clue-list-section">
+        <div className={`clue-bottom-sheet ${showClueSheet ? 'open' : ''} no-capture`}>
+          <div className="bottom-sheet-header mobile-only">
+            <h2>All Clues</h2>
+            <button className="close-sheet-btn" onClick={() => setShowClueSheet(false)}>✕</button>
+          </div>
+          <div className="clue-lists-grid">
+            <div className="clue-list-section">
             <h3>ACROSS</h3>
             {clues.across.map(cl => {
               const isActive = direction === 'across' && currentClue?.number === cl.number;
@@ -363,6 +377,7 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
                 </div>
               );
             })}
+            </div>
           </div>
         </div>
       </div>
