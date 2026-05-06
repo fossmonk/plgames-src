@@ -283,7 +283,9 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
               className="xword-grid"
               style={{
                 gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                gridTemplateRows: `repeat(${rows}, 1fr)`,
                 aspectRatio: `${cols} / ${rows}`,
+                maxWidth: `min(100%, calc(60vh * ${cols / rows}))`,
               }}
             >
             {userGrid.map((row, r) => row.map((cell, c) => {
