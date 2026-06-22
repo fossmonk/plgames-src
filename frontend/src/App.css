@@ -52,7 +52,8 @@ h3,
 }
 
 .brand-name {
-  padding-bottom: 10px; /* Prevent clipping of descenders */
+  padding-bottom: 10px;
+  /* Prevent clipping of descenders */
   line-height: 1.5;
   position: relative;
   z-index: 1000;
@@ -294,6 +295,25 @@ body,
   z-index: 10;
 }
 
+.score-badge-inline {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-color);
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .score-badge-inline {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
 .review-item {
   margin-bottom: 20px;
   padding: 15px;
@@ -386,7 +406,8 @@ body,
   align-items: center;
   gap: 20px;
   width: 100%;
-  margin-top: 20px; /* Add vertical margin below the title */
+  margin-top: 20px;
+  /* Add vertical margin below the title */
 }
 
 .grid-section {

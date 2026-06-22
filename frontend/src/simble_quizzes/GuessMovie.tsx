@@ -166,6 +166,9 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
           Movie {currentIdx + 1} of {data.questions.length}
         </div>
         <div className="bold" style={{ fontSize: '1.2rem', fontFamily: 'Space Grotesk, sans-serif' }}>
+          Score: {score}
+        </div>
+        <div className="bold" style={{ fontSize: '1.2rem', fontFamily: 'Space Grotesk, sans-serif' }}>
           Unblurs Used: {hintsUsed} / 2
         </div>
       </div>
@@ -179,14 +182,14 @@ export function GuessMovie({ data, title, gameId }: { data: any; title: string; 
             className="w-full"
             style={{ display: 'block' }}
           />
-          <div className="score-badge">
-            Score if correct: {possiblePoints}
-          </div>
         </div>
 
-        <div className="flex-center gap-10 mb-20">
+        <div className="flex-center gap-20 mb-20" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+          <div className="score-badge-inline">
+            Score if correct: {possiblePoints} pts
+          </div>
           {hintsUsed < 2 && (
-            <button onClick={handleShowHint} style={{ backgroundColor: '#ff008a' }}>
+            <button onClick={handleShowHint} style={{ backgroundColor: 'var(--color-pink)', margin: 0 }}>
               UNBLUR (-2 pts)
             </button>
           )}
