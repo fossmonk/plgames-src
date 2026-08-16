@@ -111,7 +111,10 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
       }
     }
     // Trigger mobile keyboard
-    inputRef.current?.focus();
+    if (inputRef.current) {
+      inputRef.current.value = " ";
+      inputRef.current.focus();
+    }
   };
 
   const moveCursor = (dr: number, dc: number) => {
@@ -123,20 +126,42 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
     }
   };
 
+  const handleBackspace = () => {
+    const newGrid = userGrid.map(row => [...row]);
+    if (newGrid[cursor.row][cursor.col] === '') {
+      // Move back first
+      const dr = direction === 'down' ? -1 : 0;
+      const dc = direction === 'across' ? -1 : 0;
+      let nr = cursor.row + dr;
+      let nc = cursor.col + dc;
+      if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] !== null) {
+        newGrid[nr][nc] = '';
+        setCursor({ row: nr, col: nc });
+      }
+    } else {
+      newGrid[cursor.row][cursor.col] = '';
+    }
+    setUserGrid(newGrid);
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    if (!val) return;
-
-    const char = val.slice(-1).toUpperCase();
-    if (/^[A-Z]$/.test(char)) {
-      applyChar(char);
+    
+    if (val === '') {
+      handleBackspace();
+    } else {
+      const char = val.slice(-1).toUpperCase();
+      if (/^[A-Z]$/.test(char)) {
+        applyChar(char);
+      }
     }
+    
     // Clear for next input
-    if (inputRef.current) inputRef.current.value = "";
+    if (inputRef.current) inputRef.current.value = " ";
   };
 
   const applyChar = (char: string) => {
-    const newGrid = [...userGrid];
+    const newGrid = userGrid.map(row => [...row]);
     newGrid[cursor.row][cursor.col] = char;
     setUserGrid(newGrid);
 
@@ -169,21 +194,8 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
     if (finished) return;
 
     if (e.key === 'Backspace') {
-      const newGrid = [...userGrid];
-      if (newGrid[cursor.row][cursor.col] === '') {
-        // Move back first
-        const dr = direction === 'down' ? -1 : 0;
-        const dc = direction === 'across' ? -1 : 0;
-        let nr = cursor.row + dr;
-        let nc = cursor.col + dc;
-        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] !== null) {
-          newGrid[nr][nc] = '';
-          setCursor({ row: nr, col: nc });
-        }
-      } else {
-        newGrid[cursor.row][cursor.col] = '';
-      }
-      setUserGrid(newGrid);
+      e.preventDefault();
+      handleBackspace();
       return;
     }
 
@@ -252,16 +264,6 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
 
   return (
     <div className="container xword-page no-outline" onKeyDown={handleKeyDown} tabIndex={0}>
-      {/* Hidden input to trigger mobile keyboard */}
-      <input
-        ref={inputRef}
-        type="text"
-        autoCapitalize="characters"
-        autoComplete="off"
-        spellCheck="false"
-        onChange={handleInputChange}
-        className="hidden-input"
-      />
       <h1 className="brand-name mb-20">{title}</h1>
 
       <div ref={sheetRef} className="crossword-layout">
@@ -288,6 +290,22 @@ export function MiniXWord({ data, title }: { data: CrosswordData; title: string 
                 maxWidth: `min(100%, calc(60vh * ${cols / rows}))`,
               }}
             >
+            <input
+              ref={inputRef}
+              type="text"
+              autoCapitalize="characters"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck="false"
+              onChange={handleInputChange}
+              className="hidden-input"
+              style={{
+                gridColumn: cursor.col + 1,
+                gridRow: cursor.row + 1,
+                width: '100%',
+                height: '100%',
+              }}
+            />
             {userGrid.map((row, r) => row.map((cell, c) => {
               const isBlack = cell === '#';
               const isSelected = cursor.row === r && cursor.col === c;

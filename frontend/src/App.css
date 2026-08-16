@@ -704,13 +704,14 @@ body,
 }
 
 .hidden-input {
-  position: absolute;
   opacity: 0;
   pointer-events: none;
-  top: -9999px;
-  left: -9999px;
   z-index: -1;
   font-size: 16px;
+  background: transparent;
+  color: transparent;
+  border: none;
+  outline: none;
 }
 
 .brand-link {
