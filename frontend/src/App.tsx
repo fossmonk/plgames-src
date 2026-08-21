@@ -6,6 +6,7 @@ import { PuzzleComponent } from './Puzzle.tsx'
 import { LiveQuizComponent } from './LiveQuiz.tsx'
 import Layout from './components/Layout.tsx';
 import { SubtypeDescriptions, SubtypeNames } from './SubtypeDescriptions.tsx';
+import OnamQuizContainer from './onam_2026';
 
 const API_BASE = import.meta.env.VITE_API_URL;
 const CRYPTO_KEY_STR = import.meta.env.VITE_PL_CRYPTO_KEY;
@@ -217,6 +218,7 @@ export default function App() {
             <Route path="/" element={<HomePage games={games} />} />
             <Route path="/category/:categoryName" element={<CategoryPage games={games} />} />
             <Route path="/play/:gameId" element={<GameRunner />} />
+            <Route path="/onam-2026" element={<OnamQuizContainer />} />
           </Routes>
         )}
       </Layout>

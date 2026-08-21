@@ -1,0 +1,79 @@
+.onam-container {
+    background: transparent;
+    color: var(--text-color);
+    min-height: 80vh;
+    padding: 2rem;
+    font-family: 'Space Grotesk', sans-serif;
+    border-radius: 12px;
+}
+
+.onam-title {
+    color: var(--color-pink);
+    text-align: center;
+    margin-bottom: 2rem;
+    text-shadow: 0 2px 4px rgba(255, 215, 0, 0.2);
+}
+
+.onam-login-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 3rem;
+    background: var(--tile-bg);
+    border: 2px solid #FFD700;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.1);
+    border-radius: 16px;
+}
+
+.onam-leaderboard {
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.onam-leaderboard table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.onam-leaderboard th, .onam-leaderboard td {
+    padding: 10px;
+    border-bottom: 1px solid var(--text-color);
+    opacity: 0.8;
+    text-align: left;
+}
+
+.onam-level {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.onam-input {
+    padding: 10px;
+    font-size: 1.2rem;
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--text-color);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.onam-submit {
+    padding: 10px 20px;
+    background: #ff008a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.onam-submit:hover {
+    background: #cc006e;
+}

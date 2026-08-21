@@ -12,6 +12,9 @@ import hashlib
 # Initialize FastAPI
 app = FastAPI()
 
+from .api.onam_2026 import router as onam_router
+app.include_router(onam_router)
+
 # CORS configuration
 origins = [
     "http://localhost:5173",
